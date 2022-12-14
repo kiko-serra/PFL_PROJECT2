@@ -1,41 +1,79 @@
-checkPiece(Board, NewBoard, Player, RowIndex, ColumnIndex) :-
+checkPiece(Board,  Player, RowIndex, ColumnIndex) :-
       (
-            (getPieceFromMatrix(Board, RowIndex, ColumnIndex, Piece), Player =:= Piece);
-            (askCoords(Board,Player,NewBoard))
+            (getPieceFromMatrix(Board, RowIndex, ColumnIndex, Piece), Player == Piece);
+            (
+                  write('\nERROR: That is not your piece!\n\n'),
+                  PieceColumn is ColumnIndex + 1,
+                  PieceRow is RowIndex + 1,
+                  askPiece(Board,Player, PieceRow, PieceColumn)
+            )
       ).
 
-/*Analise each turn.*/
-askCoords(Board, Player, NewBoard) :-
-      manageCoordinates(NewRow, NewColumn),
-      ColumnIndex is NewColumn - 1,
-      RowIndex is NewRow - 1,
-      write('\n'),
-      checkPiece(Board, NewBoard, Player, RowIndex, ColumnIndex).
 
-addPieces(NewBoard, UpdatedBoard, 'P', 'P') :-
-      printBoard(NewBoard),
+checkPosition(Board, Player, NewColumnIndex, ColumnIndex, RowIndex) :-
+      (
+            (
+                  (Player == lefty,
+                        NewColumnIndex > ColumnIndex,
+                        NewColumnIndex < 8
+                  );
+                  (
+                        write(NewColumnIndex),nl,
+                        write('ERROR: That is not a valid new position!\n\n'),
+                        PieceColumn is ColumnIndex + 1,
+                        PieceRow is RowIndex + 1,
+                        askRow(Board,Player, PieceRow, PieceColumn, NewColumn)
+                  )
+            );
+            (
+                  (Player == righty,
+                        NewColumnIndex < ColumnIndex,
+                        NewColumnIndex >= 0
+                  );
+                  (
+                        write('\nERROR: That is not a valid new position!\n\n'),
+                        PieceColumn is ColumnIndex + 1,
+                        PieceRow is RowIndex + 1,
+                        askRow(Board,Player, PieceRow, PieceColumn, NewColumn)
+                  )
+            )
+      ).
+
+% Firstly done without jumping %
+askRow(Board, Player, PieceRow, PieceColumn, NewColumn) :-
+      manageCoordinates(_NewRow, NewColumn),
+      NewColIndex is NewColumn - 1,
+      ColumnIndex is PieceColumn - 1,
+      RowIndex is PieceRow - 1,
+      write(NewColumn),nl, % Debug
+      write('\n'),
+      checkPosition(Board, Player, NewColIndex, ColumnIndex, RowIndex).
+
+askPiece(Board, Player, PieceRow, PieceColumn) :-
+      manageCoordinates(PieceRow, PieceColumn),
+      ColumnIndex is PieceColumn - 1,
+      RowIndex is PieceRow - 1,
+      write('\n'),
+      checkPiece(Board, Player, RowIndex, ColumnIndex).
+
+addPieces(Board, UpdatedBoard, 'P', 'P') :-
+      printBoard(Board),
       write('\n------------------ PLAYER 1 -------------------\n\n'),
       write('1. Choose skier.\n'),
-      askCoords(NewBoard, lefty, UpdatedBoard),
-      write('2. Choose skier.\n'),
-      %write('\n------------------ PLAYER 2 -------------------\n\n'),
-      %write('1. Choose skier.\n'),
-      %askCoords(Worker1Board, righty, UpdatedBoard, empty),
+      askPiece(Board, lefty, PieceRow, PieceColumn),
+      write('2. Choose row to move the skier to\n'),
+      write(PieceRow),nl,nl, % Debug
+      write(PieceColumn),nl,nl, % Debug
+      askRow(Board, lefty, PieceRow, PieceColumn, NewColumn),
       printBoard(UpdatedBoard).
 
+gameLoop(Board, P1, P2) :-
+      playerOneTurn(Board, FirstMoveBoard, P1),
+      playerOneTurn(FirstMoveBoard, SecondMoveBoard, P2),
+      gameLoop(SecondMoveBoard,P1, P2).
 
 startGame(P1, P2) :-
-    newBoard(NewBoard),
-    addPieces(NewBoard, UpdatedBoard, P1, P2),
-    gameLoop(UpdatedBoard, P1, P2).
-
-
-isValidPosLines(Board, Row, Column, Res) :-
-      (
-            (isEmptyCell(Board, Row, Column, Res), Res =:= 1,
-                  (getWorkersPos(Board, Worker1Row, Worker1Column, Worker2Row, Worker2Column),
-                  ((isWorkerLines(Board, Worker1Row, Worker1Column, Row, Column, ResIsWorkerLines1), ResIsWorkerLines1 =:= 1, Res is 1);
-                  (isWorkerLines(Board, Worker2Row, Worker2Column, Row, Column, ResIsWorkerLines2), ResIsWorkerLines2 =:= 1, Res is 1);
-                  Res is 0)));
-            (Res is 0)
-      ).
+      flush_output,
+      newBoard(Board),
+      addPieces(Board, UpdatedBoard, P1, P2),
+      gameLoop(UpdatedBoard, P1, P2).

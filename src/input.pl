@@ -1,6 +1,6 @@
 manageCoordinates(NewRow, NewColumn) :-
-    manageRow(NewRow),
-    manageColumn(NewColumn).
+    manageColumn(NewColumn),
+    manageRow(NewRow).
 
 manageRow(NewRow) :-
     readRow(Row),
@@ -11,11 +11,11 @@ manageColumn(NewColumn) :-
     validateColumn(Column, NewColumn).
 
 readRow(Row) :-
-    write('> Row\n --> '),
+    write('> Row --> '),
     read(Row).
 
 readColumn(Column) :-
-    write('> Column\n --> '),
+    write('> Column --> '),
     read(Column).
 
 % --- Column --- %
@@ -44,16 +44,41 @@ validateColumn('G', NewColumn) :-
 validateColumn('H', NewColumn) :-
     NewColumn = 8.
 
+
+validateColumn('a', NewColumn) :-
+    NewColumn = 1.
+
+validateColumn('b', NewColumn) :-
+    NewColumn = 2.
+
+validateColumn('c', NewColumn) :-
+    NewColumn = 3.
+
+validateColumn('d', NewColumn) :-
+    NewColumn = 4.
+
+validateColumn('e', NewColumn) :-
+    NewColumn = 5.
+
+validateColumn('f', NewColumn) :-
+    NewColumn = 6.
+
+validateColumn('g', NewColumn) :-
+    NewColumn = 7.
+
+validateColumn('h', NewColumn) :-
+    NewColumn = 8.
+
 validateColumn(_OtherColumn, NewColumn) :-
-    write('ERROR: Row is not valid!\n\n'),
-    readRow(Input),
-    validateRow(Input, NewColumn).
+    write('ERROR: Column is not valid!\n\n'),
+    readColumn(Input),
+    validateColumn(Input, NewColumn).
 
 % -------------- %
 
 
 % --- ROW --- %
-% We need to invert the values 
+% We need to invert the values because of the display
 validateRow(1, NewRow) :-
     NewRow = 8.
 
