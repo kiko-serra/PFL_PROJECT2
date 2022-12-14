@@ -1,11 +1,11 @@
 mainMenu :-
-    printMainMenu,manageOption
+    printMainMenu,
     askOption,
     read(Input),
     manageOption(Input).
 
 askOption :-
-    write('> Insert your option ').
+    write('> Insert your option\n --> ').
 
 manageOption(1) :-
     startGame('P','P'),
@@ -32,16 +32,16 @@ printMainMenu :-
     nl,nl,
     write('======================================================='),nl,
     nl,
-    tab(30), write('Ski Jumps'),nl,
+    write('               '), write('Ski Jumps'),nl,
     nl,
-    tab(20),write('--------------------------------'),nl,
+    write(         '--------------------------------'),nl,
     nl,nl,
-    tab(30), write('1. Player vs Player'),nl,
+    write('               '), write('1. Player vs Player'),nl,
     nl,
-    tab(30), write('2. Player vs Computer'),nl,
+    write('               '), write('2. Player vs Computer'),nl,
     nl,
-	tab(30), write('3. Computer vs Computer'),nl,
+	write('               '), write('3. Computer vs Computer'),nl,
     nl,
-    tab(30), write('0. Exit'),nl,
+    write('               '), write('0. Exit'),nl,
     nl,
     write('======================================================='),nl,nl,nl.
