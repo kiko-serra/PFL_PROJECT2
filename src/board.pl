@@ -16,14 +16,14 @@ symbol(lefty, S) :- S='L'.
 symbol(slipper_righty, S) :- S='r'.
 symbol(slipper_lefty, S) :- S='l'.
 
-letter(1, L) :- L='A'.
-letter(2, L) :- L='B'.
-letter(3, L) :- L='C'.
-letter(4, L) :- L='D'.
-letter(5, L) :- L='E'.
-letter(6, L) :- L='F'.
-letter(7, L) :- L='G'.
-letter(8, L) :- L='H'.
+letter(1, 'A').
+letter(2, 'B').
+letter(3, 'C').
+letter(4, 'D').
+letter(5, 'E').
+letter(6, 'F').
+letter(7, 'G').
+letter(8, 'H').
 
 printBoard(X) :-
     nl,
