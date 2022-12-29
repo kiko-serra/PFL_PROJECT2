@@ -50,7 +50,7 @@ update_matrix(Board, Column, Row, Piece, NewBoard) :-
       nth0(Row,NewBoard,NewRow,TBoard).
 
 
-update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]) :-
+update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]) :- % Change this asap, the verification is done already!!
       update_matrix(Board, X1, Y1, ., TempBoard),
       nl,write(Piece),nl,
       update_matrix(TempBoard, X2, Y2, Piece, AnotherBoard),
@@ -76,8 +76,24 @@ update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]) :-
       ;     NewBoard = AnotherBoard
       ).
 
+off_the_board_pieces(Board, NewBoard, ListOfMoves) :-
+      findall([X, Y], (red(X, Y), X = 7, \+ member([X,Y,_,_], ListOfMoves)), L1),
+      findall([X, Y], (slipper_red(X, Y), X = 7, \+ member([X,Y,_,_], ListOfMoves)), L2),
+      findall([X, Y], (black(X, Y), X = 0, \+ member([X,Y,_,_], ListOfMoves)), L3),
+      findall([X, Y], (slipper_black(X, Y), X = 0, \+ member([X,Y,_,_], ListOfMoves)), L4),
+      length(L1, Lenght1), length(L2, Lenght2), length(L3, Lenght3), length(L4, Lenght4),
+      move_off_the_board(Board, B2, r, L1, Lenght1),
+      move_off_the_board(B2, B3, s_r, L2, Lenght2),
+      move_off_the_board(B3, B4, b, L3, Lenght3),
+      move_off_the_board(B4, NewBoard, s_b, L4, Lenght4).
 
-      
+move_off_the_board(Board,NewBoard,_, [], 0):-
+      NewBoard = Board.
+move_off_the_board(Board, NewBoard, Piece, [[X,Y]|T], Lenght) :-
+      Lenght1 is Lenght - 1,
+      delete_piece_from_board(Piece, X, Y),
+      update_matrix(TempBoard, X, Y, ., NewBoard),
+      move_off_the_board(Board, TempBoard, Piece, T, Lenght1).
 
 check_normal_move(Board, [X1,Y1,X2,Y2], Piece) :-
       (     (Piece = r; Piece = s_r),
@@ -157,38 +173,26 @@ choose_move([Player|Board], Level, Move):-
 
 
 move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
-      get_piece(Board, X1, Y1, Piece),
-      update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]),
-      update_piece_position(Piece, [X1,Y1,X2,Y2]),
-      update_player(Player, NewPlayer).
-
-positions(Piece, Row, Positions) :-
-    findall(Position, nth0(Position, Row, Piece), Positions).
-
-
-iteration(_,_,_,-1).
-iteration(Board, p1, [ListOfMoves|NewListOfMoves], N) :- % Move é do tipo [x1,y1,x2,y2]
+      valid_moves([Player|Board], ListOfMoves),
       (
-            (     
-                  get_row(Board, N, Row),
-                  positions(r, Row, Positions),
-                  write(N), write(' ------ '),
-                  foreach(member(Position, Positions),
-                  (
-                        nth0(Position, Row, Piece),
-                        write(Position), write(' <-> ')
-                  )),nl
-            )
-      -> true
-      ; true
-      ),
-      N1 is N - 1,
-      iteration(Board, p1, NewListOfMoves, N1).
+            length(ListOfMoves, Length),
+            Length > 0,
+            member([X1,Y1,X2,Y2], ListOfMoves), 
+            get_piece(Board, X1, Y1, Piece), % Update ao get piece quandopossivel para usar a db
+            update_board(Piece, Board, SecondBoard, [X1,Y1,X2,Y2]),
+            update_piece_position(Piece, [X1,Y1,X2,Y2]),
+            update_player(Player, NewPlayer),
+            valid_moves([Player|SecondBoard], CurrentPlayerMoves),
+            valid_moves([NewPlayer|SecondBoard], OtherPlayerMoves),
+            append(CurrentPlayerMoves, OtherPlayerMoves, FullList),
+            off_the_board_pieces(SecondBoard, NewBoard, FullList)
+      ;     NewBoard = Board
+      ).
 
 valid_moves([Player|Board], ListOfMoves) :- % Mudar Board para Gamestate later % First, get only horizontal moves
-      valid_move_forward(Player, Set1),
-      border_pieces(Player, Set2),
-      append(Set1, Set2, ListOfMoves).
+      valid_move_forward(Player, ListOfMoves).
+      %border_pieces(Player, Set2), % Deixar as borders de fora
+      %append(Set1, Set2, ListOfMoves).
 
 
 valid_move_forward(p1, List) :-
@@ -214,16 +218,25 @@ find_moves(Pieces, Player, NewList) :- % CHANGE THISSSSSS
             L1
       ),
       findall(
-            Jump,
+            JumpUp,
             (
                   member(Col-Row, Pieces),
-                  piece_jumps(Col, Row, Player, Row, List),
-                  member(Jump, List)
+                  piece_jumps_upwards(Col, Row, Player, Row, List),
+                  member(JumpUp, List)
             ),
             L2
       ),
-      append(L1, L2, List),
-      write('List of jumps: '), write(L2), nl,
+      findall(
+            JumpDown,
+            (
+                  member(Col-Row, Pieces),
+                  piece_jumps_downwards(Col, Row, Player, Row, List),
+                  member(JumpDown, List)
+            ),
+            L3
+      ),
+      append(L1, L2, AuxL),
+      append(AuxL, L3, List),
       remove_duplicates(List, NewList).
 
 
@@ -248,44 +261,44 @@ piece_moves(Column, Row, p2, X, List) :-
       ;     List = []
       ).
 
-piece_jumps(Column, Row, p1, Y, List) :-
+piece_jumps_upwards(Column, Row, p1, Y, List) :-
       (     
-            Y > 0, Y < 7,
+            Y < 6,
             Y1 is Y + 1, Y2 is Y + 2,
             (black(Column, Y1); slipper_black(Column, Y2)), \+ red(Column, Y2),
-            piece_jumps(Column, Row, p1, Y2, Tail),
+            piece_jumps_upwards(Column, Row, p1, Y2, Tail),
             Move = [Column, Row, Column, Y2],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-piece_jumps(Column, Row, p1, Y, List) :-
+piece_jumps_downwards(Column, Row, p1, Y, List) :-
       (     
-            Y > 0, Y < 7,
+            Y > 1,
             Y1 is Y - 1, Y2 is Y - 2,
             (black(Column, Y1); slipper_black(Column, Y2)), \+ red(Column, Y2),
-            piece_jumps(Column, Row, p1, Y2, Tail),
+            piece_jumps_downwards(Column, Row, p1, Y2, Tail),
             Move = [Column, Row, Column, Y2],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-piece_jumps(Column, Row, p2, Y, List) :-
+piece_jumps_upwards(Column, Row, p2, Y, List) :-
       (     
-            Y > 0, Y < 7,
+            Y < 6,
             Y1 is Y + 1, Y2 is Y + 2,
             (red(Column, Y1); slipper_red(Column, Y2)), \+ black(Column, Y2),
-            piece_jumps(Column, Row, p1, Y2, Tail),
+            piece_jumps_upwards(Column, Row, p1, Y2, Tail),
             Move = [Column, Row, Column, Y2],
             append([Move], Tail, List)
       ;     List = []
       ).
-piece_jumps(Column, Row, p2, Y, List) :-
+piece_jumps_downwards(Column, Row, p2, Y, List) :-
       (     
-            Y > 0, Y < 7,
+            Y > 1,
             Y1 is Y - 1, Y2 is Y - 2,
             (red(Column, Y1); slipper_red(Column, Y2)), \+ black(Column, Y2),
-            piece_jumps(Column, Row, p1, Y2, Tail),
+            piece_jumps_downwards(Column, Row, p1, Y2, Tail),
             Move = [Column, Row, Column, Y2],
             append([Move], Tail, List)
       ;     List = []
@@ -302,37 +315,40 @@ border_pieces(p2, List) :-
       findall([X, Y, ., .], (slipper_black(X, Y), X = 0), L2),
       append(L1, L2, List).
 
-count_piece(Board, Count, Piece) :-
-    count_piece(Board, 0, Count, Piece).
+value([Player|Board], Value) :-
+      valid_moves([Player|Board], PlayerMoves),
+      update_player(Player, Opponent),
+      valid_moves([Opponent|Board], OpponentMoves),
+      length(PlayerMoves, V1),
+      length(OpponentMoves, V2),
+      Value is V1 - V2,
+      write('Your position value is: '),
+      (
+            Value @>= 0
+      ->    write('+')
+      ;     true
+      ),
+      write(Value), nl.
 
-count_piece([], Count, Count, Piece).
-count_piece([Row|Rows], Acc, Count, Piece) :-
-    (   member(r, Row)
-    ->  Acc1 is Acc + 1
-    ;   Acc1 is Acc
-    ),
-    count_piece(Rows, Acc1, Count, Piece).
-
-player_piece_counter(Player, Board, Counter) :-
-      player_jumper_piece(Player, Jumper),
-      count_piece(Board, Counter1, Jumper),
-      player_slipper_piece(Player, Slipper),
-      count_piece(Board, Counter2, Slipper), 
-      Counter is Counter1 + Counter2.
 
 game_over([Player|Board], Winner) :-
-      player_piece_counter(Player, Board, C1),
-      other_player(Player, Enemy),
-      player_piece_counter(Player, Board, C2),
+      get_all_player_pieces(Player, C1),
+      other_player(Player, Opponent),
+      get_all_player_pieces(Opponent, C2),
       (
-            C1 =:= 0
+            C1 =:= 0, C2 > 0
       ->    Winner = p1,
             write('Win condition 1'),nl
       ;     (
-                 C2 =:= 0 
+                 C2 =:= 0, C1 > 0 
             ->    Winner = p2,
                   write('Win condition 2'),nl
-            ;     fail
+            ;     (
+                  C1 =:= 0, C2 =:= 0
+                  -> Winner = p1, %FOR NOW CHANGE LATER TO TIE
+                  write('It was a tie somehow'),nl
+                  ; fail
+                  )
             )
       ).
 
@@ -351,6 +367,7 @@ game_cycle(GameState):-
 
 game_cycle(GameState):-
       valid_moves(GameState, ListOfMoves), write('Valid moves: '), write(ListOfMoves),nl,nl,
+      value(GameState, Value),
       choose_move(GameState, Level, Move),
       move(GameState, Move, NewGameState),
       display_game(NewGameState), !,

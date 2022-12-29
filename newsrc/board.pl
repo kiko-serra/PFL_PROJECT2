@@ -55,6 +55,18 @@ get_pieces(Pieces) :-
     append(Reds, SReds, L1), append(L1, Blacks, L2), append(L2, SReds, L3), append(L3, SBlacks, L4),
     remove_duplicates(L4, Pieces).
 
+get_all_player_pieces(p1, Lenght) :-
+    findall(X1-Y1, red(X1,Y1), Reds),
+    findall(X2-Y2, slipper_red(X2,Y2), SReds),
+    append(Reds, SReds, List),
+    length(List, Lenght).
+
+get_all_player_pieces(p2, Lenght) :-
+    findall(X1-Y1, black(X1,Y1), Blacks),
+    findall(X2-Y2, slipper_black(X2,Y2), SBlacks),
+    append(Blacks, SBlacks, List),
+    length(List, Lenght).
+
 remove_duplicates([], []).
 remove_duplicates([H|T], List) :- member(H, T), remove_duplicates(T, List).
 remove_duplicates([H|T], [H|List]) :- \+ member(H, T), remove_duplicates(T, List).
