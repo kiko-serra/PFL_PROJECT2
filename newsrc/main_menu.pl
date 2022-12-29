@@ -1,4 +1,5 @@
 mainMenu :-
+    clear_data,
     printMainMenu,
     askOption,
     read(Input),
