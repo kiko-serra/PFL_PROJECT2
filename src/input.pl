@@ -1,6 +1,23 @@
-manageCoordinates(NewRow, NewColumn) :-
-    manageColumn(NewColumn),
-    manageRow(NewRow).
+manageCoordinates(Move) :-
+    read_characters(X1,Y1,X2,Y2),
+    Move = [X1,Y1,X2,Y2],
+    write('Move: '), write(Move). % Debugging only!
+
+read_characters(X1,Y1,X2,Y2) :-
+    repeat,
+    read(String),
+    sub_atom(String, 0, 1, _, A),
+    sub_atom(String, 1, 1, _, B),
+    sub_atom(String, 2, 1, _, C),
+    sub_atom(String, 3, 1, _, D),
+    (   validateColumn(A, X1),
+        validateRow(B,Y1),
+        validateColumn(C, X2),
+        validateRow(D,Y2)
+    ->  true
+    ;   write('Invalid Input. Please try again.'), nl, fail
+    ).
+
 
 manageRow(NewRow) :-
     readRow(Row),
@@ -44,42 +61,35 @@ validateColumn('g', NewColumn) :-
 validateColumn('h', NewColumn) :-
     NewColumn = 7.
 
-validateColumn(_OtherColumn, NewColumn) :-
-    write('ERROR: Column is not valid!\n\n'),
-    readColumn(Input),
-    validateColumn(Input, NewColumn).
 
 % -------------- %
 
 
 % --- ROW --- %
 % We need to invert the values because of the display
-validateRow(1, NewRow) :-
+validateRow('1', NewRow) :-
     NewRow = 7.
 
-validateRow(2, NewRow) :-
+validateRow('2', NewRow) :-
     NewRow = 6.
 
-validateRow(3, NewRow) :-
+validateRow('3', NewRow) :-
     NewRow = 5.
 
-validateRow(4, NewRow) :-
+validateRow('4', NewRow) :-
     NewRow = 4.
 
-validateRow(5, NewRow) :-
+validateRow('5', NewRow) :-
     NewRow = 3.
 
-validateRow(6, NewRow) :-
+validateRow('6', NewRow) :-
     NewRow = 2.
 
-validateRow(7, NewRow) :-
+validateRow('7', NewRow) :-
     NewRow = 1.
 
-validateRow(8, NewRow) :-
+validateRow('8', NewRow) :-
     NewRow = 0.
 
-validateRow(_OtherRow, NewRow) :-
-    write('ERROR: Row is not valid!\n\n'),
-    readRow(Input),
-    validateRow(Input, NewRow).
+
 % ----------- %
