@@ -52,7 +52,6 @@ update_matrix(Board, Column, Row, Piece, NewBoard) :-
 
 update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]) :- % Change this asap, the verification is done already!!
       update_matrix(Board, X1, Y1, ., TempBoard),
-      nl,write(Piece),nl,
       update_matrix(TempBoard, X2, Y2, Piece, AnotherBoard),
       (     X1 =:= X2
       ->    (     Y2 =:= Y1 - 2
@@ -150,7 +149,6 @@ check_jump_move(Board, [X1,Y1,X2,Y2], b) :-
 
 check_move(Player, Board, [X1,Y1,X2,Y2]) :-
       get_piece(Board, X1, Y1, Piece), nl,
-      % write('Is from Player? '), write(Piece), nl, % Debugging only!
       is_from_player(Player, Piece),
       (     Y1 =:= Y2, X1 =\= X2 % Normal Move
       ->    check_normal_move(Board, [X1,Y1,X2,Y2], Piece)     
@@ -159,10 +157,39 @@ check_move(Player, Board, [X1,Y1,X2,Y2]) :-
             ; fail
             )
       ).
-       %Falta fazer o resto das verificações (se é jumper ou nao, etc etc)
+      %Falta fazer o resto das verificações (se é jumper ou nao, etc etc)
       
+random_index(Index, ListOfMoves) :-
+      length(ListOfMoves, Length),
+      random(0, Length, Index).
 
-choose_move([Player|Board], Level, Move):-
+simulate_move([Player|Board], [X1,Y1,X2,Y2], Value) :-
+      (
+            write([X1,Y1,X2,Y2]),nl,
+            get_piece(Board, X1, Y1, Piece), % Update ao get piece quando possivel para usar a db
+            update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]),
+            value([Player|NewBoard], Value)
+      ).
+
+greedy_evaluation([Player|Board], [H], BestMove, BestValue) :-
+      value([Player|Board], CurrentValue),
+      simulate_move([Player|Board], H, Value),
+      BestMove = H,
+      BestValue = Value.
+
+
+greedy_evaluation([Player|Board], [H|T], BestMove, BestValue) :- % Deep of search de 1 move ?
+      (
+            simulate_move([Player|Board], H, Value),
+            greedy_evaluation([Player|Board], T, CurrBestMove, CurrBestValue),
+            (
+                  Value @> CurrBestValue
+            ->    BestMove = H, BestValue = Value 
+            ;     BestMove = CurrBestMove, BestValue = CurrBestValue       
+            )
+      ).
+
+choose_move([Player|Board], 0, Move):-
       repeat,
       write(' > Choose skier. ---> '),
       manageCoordinates(Move),
@@ -171,6 +198,17 @@ choose_move([Player|Board], Level, Move):-
       ;     write('Invalid move. Please try again.'), nl, fail
       ).
 
+choose_move([Player|Board], 1, Move):-
+      write(' > Choose skier. ---> '),
+      valid_moves([Player|Board], ListOfMoves),
+      random_index(Index, ListOfMoves),
+      nth0(Index, ListOfMoves, Move).
+
+choose_move([Player|Board], 2, Move):-
+      write(' > Choose skier. ---> '),
+      read(Input),
+      valid_moves([Player|Board], ListOfMoves),
+      greedy_evaluation([Player|Board], ListOfMoves, Move, Value).
 
 move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
       valid_moves([Player|Board], ListOfMoves),
@@ -321,7 +359,8 @@ value([Player|Board], Value) :-
       valid_moves([Opponent|Board], OpponentMoves),
       length(PlayerMoves, V1),
       length(OpponentMoves, V2),
-      Value is V1 - V2,
+      Val is V1 - V2,
+      Value is Val / 8,
       write('Your position value is: '),
       (
             Value @>= 0
@@ -330,6 +369,42 @@ value([Player|Board], Value) :-
       ),
       write(Value), nl.
 
+
+level_current_player(_, 0, PlayerLevel) :-
+      PlayerLevel = 0.
+
+
+level_current_player([Player|Board], 1, PlayerLevel) :-
+      (     player(X),
+            X = Player
+      ->    PlayerLevel = 0 
+      ;     PlayerLevel = 1
+      ).
+
+level_current_player([Player|Board], 2, PlayerLevel) :-
+      (     player(X),
+            X = Player
+      ->    PlayerLevel = 0 
+      ;     PlayerLevel = 2
+      ).
+
+level_current_player([Player|Board], 11, PlayerLevel) :-
+      PlayerLevel = 1.
+
+level_current_player([Player|Board], 22, PlayerLevel) :-
+      PlayerLevel = 2.
+
+level_current_player([p1|Board], 12, PlayerLevel) :-
+      PlayerLevel = 1.
+
+level_current_player([p2|Board], 12, PlayerLevel) :-
+      PlayerLevel = 2.
+
+level_current_player([p1|Board], 21, PlayerLevel) :-
+      PlayerLevel = 2.
+
+level_current_player([p2|Board], 21, PlayerLevel) :-
+      PlayerLevel = 1.
 
 game_over([Player|Board], Winner) :-
       get_all_player_pieces(Player, C1),
@@ -355,22 +430,25 @@ game_over([Player|Board], Winner) :-
 congratulate(Winner) :-
       write('Congratulations Player'), symbol(Winner, S), write(S), write(', you won!'),nl.
 
-play_game(P1, P2):-
+
+play_game(Level) :-
       flush_output,
       initial_state(Size, GameState),
       display_game(GameState),
-      game_cycle(GameState).
+      game_cycle(GameState, Level).
 
-game_cycle(GameState):-
+game_cycle(GameState, Level):-
       game_over(GameState, Winner), !,
       congratulate(Winner).
 
-game_cycle(GameState):-
-      valid_moves(GameState, ListOfMoves), write('Valid moves: '), write(ListOfMoves),nl,nl,
-      value(GameState, Value),
-      choose_move(GameState, Level, Move),
+game_cycle(GameState, Level):-
+      level_current_player(GameState, Level, PlayerLevel),
+      choose_move(GameState, PlayerLevel, Move),
       move(GameState, Move, NewGameState),
       display_game(NewGameState), !,
-      game_cycle(NewGameState).
+      game_cycle(NewGameState, Level).
 
 
+
+% Apenas precisa de dar update à db enquanto faz o algoritmo greedy e o bot está feito
+% Trabalho bem encaminhado
