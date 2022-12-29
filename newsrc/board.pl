@@ -107,6 +107,14 @@ update_piece_type(b, X, Y) :-
     retract(black(X,Y)),
     assertz(slipper_black(X,Y)).
 
+retract_piece_type(s_r, X, Y) :-
+    retract(slipper_red(X,Y)),
+    assertz(red(X,Y)).
+
+retract_piece_type(s_b, X, Y) :-
+    retract(slipper_black(X,Y)),
+    assertz(black(X,Y)).
+
 display_game([Player|Board]) :-
     nl,
     write('-----|---|---|---|---|---|---|---|---|'),nl,

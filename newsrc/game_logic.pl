@@ -30,6 +30,11 @@ slipper_piece(r, Slipper) :-
 slipper_piece(b, Slipper) :-
       Slipper = s_b.
 
+jumper_piece(s_r, Jumper) :-
+      Jumper = r.     
+jumper_piece(s_b, Jumper) :-
+      Jumper = b.
+
 get_row(Board, Y, Row):-
       nth0(Y, Board, Row).
 
@@ -49,31 +54,55 @@ update_matrix(Board, Column, Row, Piece, NewBoard) :-
       nth0(Column,NewRow,Piece,TRow),
       nth0(Row,NewBoard,NewRow,TBoard).
 
+retract_board(Piece, Board, NewBoard, [X,Y2,X,Y1]) :-
+      Y2 =:= Y1 - 2,
+      update_matrix(Board, X, Y1, ., TempBoard),
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      YOpponent is Y1 - 1,
+      get_piece(Board, X, YOpponent, EnemySlipper),  
+      is_enemy(Piece, EnemySlipper),
+      jumper_piece(EnemyPiece, Jumper), retract_piece_type(EnemySlipper, X, YOpponent),
+      update_matrix(SecondTempBoard, X, YOpponent, Jumper, NewBoard).
 
-update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]) :- % Change this asap, the verification is done already!!
-      update_matrix(Board, X1, Y1, ., TempBoard),
-      update_matrix(TempBoard, X2, Y2, Piece, AnotherBoard),
-      (     X1 =:= X2
-      ->    (     Y2 =:= Y1 - 2
-            ->    (
-                        YEnemy is Y1 - 1,
-                        get_piece(Board, X1, YEnemy, EnemyPiece),  
-                        is_enemy(Piece, EnemyPiece)
-                  ->    slipper_piece(EnemyPiece, Slipper), update_piece_type(EnemyPiece, X1, YEnemy),
-                        update_matrix(AnotherBoard, X1, YEnemy, Slipper, NewBoard)
-                  ;     write('fail 1\n'),fail
-                  )
-            ;     (     Y2 =:= Y1 + 2,
-                        YEnemy is Y1 + 1,
-                        get_piece(Board, X1, YEnemy, EnemyPiece), 
-                        is_enemy(Piece, EnemyPiece)
-                  ->    slipper_piece(EnemyPiece, Slipper), update_piece_type(EnemyPiece, X1, YEnemy),
-                        update_matrix(AnotherBoard, X1, YEnemy, Slipper, NewBoard)
-                  ;     write('fail 2\n'),fail
-                  )
-            )
-      ;     NewBoard = AnotherBoard
-      ).
+retract_board(Piece, Board, NewBoard, [X,Y2,X,Y1]) :-
+      Y2 =:= Y1 + 2,
+      update_matrix(Board, X, Y1, ., TempBoard),
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      YOpponent is Y1 + 1,
+      get_piece(Board, X, YOpponent, EnemySlipper),  
+      is_enemy(Piece, EnemySlipper),
+      jumper_piece(EnemyPiece, Jumper), retract_piece_type(EnemySlipper, X, YOpponent),
+      update_matrix(SecondTempBoard, X, YOpponent, Jumper, NewBoard).
+
+retract_board(Piece, Board, NewBoard, [X2,Y,X1,Y]) :-
+      X1 =\= X2,
+      update_matrix(Board, X1, Y, ., TempBoard),
+      update_matrix(TempBoard, X2, Y, Piece, NewBoard).
+
+update_board(Piece, Board, NewBoard, [X,Y1,X,Y2]) :-
+      Y2 =:= Y1 - 2,
+      update_matrix(Board, X, Y1, ., TempBoard),
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      YOpponent is Y1 - 1,
+      get_piece(Board, X, YOpponent, EnemyPiece),  
+      is_enemy(Piece, EnemyPiece),
+      slipper_piece(EnemyPiece, Slipper), update_piece_type(EnemyPiece, X, YOpponent),
+      update_matrix(SecondTempBoard, X, YOpponent, Slipper, NewBoard).
+
+update_board(Piece, Board, NewBoard, [X,Y1,X,Y2]) :-
+      Y2 =:= Y1 + 2,
+      update_matrix(Board, X, Y1, ., TempBoard),
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      YOpponent is Y1 + 1,
+      get_piece(Board, X, YOpponent, EnemyPiece),  
+      is_enemy(Piece, EnemyPiece),
+      slipper_piece(EnemyPiece, Slipper), update_piece_type(EnemyPiece, X, YOpponent),
+      update_matrix(SecondTempBoard, X, YOpponent, Slipper, NewBoard).
+
+update_board(Piece, Board, NewBoard, [X1,Y,X2,Y]) :-
+      X1 =\= X2,
+      update_matrix(Board, X1, Y, ., TempBoard),
+      update_matrix(TempBoard, X2, Y, Piece, NewBoard).
 
 off_the_board_pieces(Board, NewBoard, ListOfMoves) :-
       findall([X, Y], (red(X, Y), X = 7, \+ member([X,Y,_,_], ListOfMoves)), L1),
@@ -163,12 +192,15 @@ random_index(Index, ListOfMoves) :-
       length(ListOfMoves, Length),
       random(0, Length, Index).
 
-simulate_move([Player|Board], [X1,Y1,X2,Y2], Value) :-
+simulate_move([Player|Board], [X1,Y1,X2,Y2], Value) :- % ESTÁ A FALHAR EM SITUAÇÃO DE JUMP!!
       (
             write([X1,Y1,X2,Y2]),nl,
             get_piece(Board, X1, Y1, Piece), % Update ao get piece quando possivel para usar a db
             update_board(Piece, Board, NewBoard, [X1,Y1,X2,Y2]),
-            value([Player|NewBoard], Value)
+            update_piece_position(Piece, [X1,Y1,X2,Y2]),
+            value([Player|NewBoard], Value),
+            retract_board(Piece, NewBoard, _, [X1,Y1,X2,Y2]),
+            update_piece_position(Piece, [X2,Y2,X1,Y1])
       ).
 
 greedy_evaluation([Player|Board], [H], BestMove, BestValue) :-
