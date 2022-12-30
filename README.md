@@ -1,10 +1,10 @@
 # SKI JUMPS
 Group G02_09:
 
-Francisco Pimentel Serra - up202007723 (%)
-
-João Paulo Moreira Araújo - up202004293 (%)
-
+| Name                        | UP                                        | Contribuition |
+| ------------                | ------------                              |------------   |
+| Francisco Pimentel Serra    | [up202007723](mailto:up202007723@fe.up.pt)|50%            |
+| João Paulo Moreira Araújo   | [up202004293](mailto:up202004293@fe.up.pt)|50%            |
 
 # TODO
 
