@@ -2,6 +2,7 @@
 Group G02_09:
 
 Francisco Pimentel Serra - up202007723 (%)
+
 João Paulo Moreira Araújo - up202004293 (%)
 
 
@@ -47,12 +48,9 @@ On each turn, a player can take one of the following actions:
 Wins the player that made the last move.
 
 This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/skijump.htm) provided in moodle.
+
 ## Game Logic
 ### Game state internal representation
-
-
-
-#### Initial state (8x8)
 
 
 
@@ -105,12 +103,14 @@ Once the game starts, the board is displayed as such:
 ```
 
 The board display predicate, `display_game(+GameState)`. The Red jumpers are represented as `R` and the Black as `B`, the Red slippers are represented as `r` and the Black as `b`.
+
 ### Move execution
 
 The `move(+GameState, +Move, -NewGameState)` predicate takes three arguments: the current game state (represented as a list), a proposed move (also represented as a list), and the resulting new game state after the move has been executed (also represented as a list). 
 The function begins by obtaining a list of valid moves that can be made from the current game state by calling the `valid_moves` predicate. It then checks to see if the proposed move is a member of this list by using the `length` and `member` built-in predicates. 
 If the proposed move is not valid, the new game state is set to be the same as the current game state. If the proposed move is valid, the function updates the game state to reflect the movement of the piece by calling the `get_piece,` `update_board,` `update_piece_position,` and `update_player` predicates. 
 It also removes any pieces that have moved off the board by calling the `off_the_board_pieces` predicate.
+
 ### Game Over
 
 The `gameOver(+GameState, -Winner)` predicate takes two arguments: the current game state (represented as a list) and the winner of the game (represented as a variable). 
