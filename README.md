@@ -137,5 +137,5 @@ The board game *Ski Jumps* was successfully implemented in the SicStus Prolog 4.
 One of the difficulties on the project was displaying an intuitive board in the SicStus terminal, which has a very limited set of characters and customization. This limits the game design, since it's hard to display black/white cells and black/red pieces at the same time. This issue was mitigated by using the characters 'B' and 'R', which isn't ideal.
 
 ### Sources
-- https://www.di.fc.ul.pt/~jpn/gv/skijump.htm
-- https://annarchive.com/files/Winning%20Ways%20for%20Your%20Mathematical%20Plays%20V1.pdf
+- [Game Rules](https://www.di.fc.ul.pt/~jpn/gv/skijump.htm)
+- [Book](https://annarchive.com/files/Winning%20Ways%20for%20Your%20Mathematical%20Plays%20V1.pdf)
