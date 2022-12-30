@@ -57,9 +57,54 @@ This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/sk
 
 
 ### Game state visualization
+The game menu is diplayed as such:
+```
+=======================================================================================================================================
+     ________       ___  __        ___                        ___      ___  ___      _____ ______       ________    ________
+    |\   ____\     |\  \|\  \     |\  \                      |\  \    |\  \|\  \    |\   _ \  _   \    |\   __  \  |\   ____\     
+    \ \  \___|_    \ \  \/  /|_   \ \  \    ____________     \ \  \   \ \  \\\  \   \ \  \\\__\ \  \   \ \  \|\  \ \ \  \___|_    
+     \ \_____  \    \ \   ___  \   \ \  \  |\____________\ __ \ \  \   \ \  \\\  \   \ \  \\|__| \  \   \ \   ____\ \ \_____  \   
+      \|____|\  \    \ \  \\ \  \   \ \  \ \|____________||\  \\_\  \   \ \  \\\  \   \ \  \    \ \  \   \ \  \___|  \|____|\  \  
+        ____\_\  \    \ \__\\ \__\   \ \__\               \ \________\   \ \_______\   \ \__\    \ \__\   \ \__\       ____\_\  \ 
+       |\_________\    \|__| \|__|    \|__|                \|________|    \|_______|    \|__|     \|__|    \|__|      |\_________\ 
+       \|_________|                                                                                                   \|_________|
+
+         1. Player vs Player
+
+         2. Player vs Computer
+
+         3. Computer vs Computer
+
+         0. Exit
+
+=======================================================================================================================================
+```
+Once the game starts, the board is displayed as such:
+```
+-----|---|---|---|---|---|---|---|---|
+ <8> | R |   |   |   |   |   |   |   | 
+-----|---|---|---|---|---|---|---|---|
+ <7> |   |   |   |   |   |   |   | B | 
+-----|---|---|---|---|---|---|---|---|
+ <6> | R |   |   |   |   |   |   |   | 
+-----|---|---|---|---|---|---|---|---|
+ <5> |   |   |   |   |   |   |   | B | 
+-----|---|---|---|---|---|---|---|---|
+ <4> | R |   |   |   |   |   |   |   | 
+-----|---|---|---|---|---|---|---|---|
+ <3> |   |   |   |   |   |   |   | B | 
+-----|---|---|---|---|---|---|---|---|
+ <2> | R |   |   |   |   |   |   |   | 
+-----|---|---|---|---|---|---|---|---|
+ <1> |   |   |   |   |   |   |   | B | 
+-----|---|---|---|---|---|---|---|---|
+     |<A>|<B>|<C>|<D>|<E>|<F>|<G>|<H>|
 
 
+    > Player 1 turn to play <
+```
 
+The board display predicate, `display_game(+GameState)`. The Red jumpers are represented as `R` and the Black as `B`, the Red slippers are represented as `r` and the Black as `b`.
 ### Move execution
 
 The `move(+GameState, +Move, -NewGameState)` predicate takes three arguments: the current game state (represented as a list), a proposed move (also represented as a list), and the resulting new game state after the move has been executed (also represented as a list). 
@@ -87,7 +132,7 @@ The `value(+GameState, +Player, -Value)` predicate is a function in Prolog that 
 
 ## Conclusion
 
-The board game *Dan En Nacht* was successfully implemented in the SicStus Prolog 4.7 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
+The board game *Ski Jumps* was successfully implemented in the SicStus Prolog 4.7 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
 
 One of the difficulties on the project was displaying an intuitive board in the SicStus terminal, which has a very limited set of characters and customization. This limits the game design, since it's hard to display black/white cells and black/red pieces at the same time. This issue was mitigated by using the characters 'B' and 'R', which isn't ideal.
 
