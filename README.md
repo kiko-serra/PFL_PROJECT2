@@ -15,7 +15,7 @@ Group G02_09:
 [ ] - ...
 
 
-## Instalattion and Execution
+## Installation and Execution
 
 To play the game you first need to have SICStus Prolog 4.7 or a newer version currently installed on your machine plus the folder with the source code. 
 
