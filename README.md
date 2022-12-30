@@ -124,7 +124,9 @@ The `valid_move_forward` predicate, in turn, calls the `findall` and `find_moves
 
 ### Game state evaluation
 
-The `value(+GameState, +Player, -Value)` predicate is a function in Prolog that takes two arguments: the current game state (represented as a list) and a value (represented as a variable). The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8. This resulting value is then returned as the output of the `value` predicate. This function is used to determine the value of a given game state in a game that involves moving pieces on a board.
+The `value(+GameState, +Player, -Value)` predicate is a function in Prolog that takes two arguments: the current game state (represented as a list) and a value (represented as a variable). 
+The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8. 
+This resulting value is then returned as the output of the `value` predicate.
 
 ### Computer move
 
