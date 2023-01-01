@@ -167,8 +167,8 @@ This resulting value is then returned as the output of the `value` predicate.
 ### Computer move
 
 The `choose_move(+GameState, +Difficulty, -Move)` predicate takes three arguments: the current game state (represented as a list), an integer value, and a move (represented as a variable). The function begins calling the `valid_moves` predicate to get a list of valid moves that can be made from the current game state. 
-- If the dificulty is *easy* it choses the next move using the `random_index` predicate and the `nth0` built-in predicate 
-- If the dificultt is *hard* it choses the next move using the `greedy_evaluation` predicate that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
+- If the difficulty is *easy* it choses the next move using the `random_index` predicate and the `nth0` built-in predicate 
+- If the difficulty is *hard* it choses the next move using the `greedy_evaluation` predicate that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
 
 ## Conclusion
 
