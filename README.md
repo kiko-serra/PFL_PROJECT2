@@ -44,7 +44,7 @@ This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/sk
 ## Game Logic
 ### Game state internal representation
 
-At any moment of the game, the game state is represented by a list of 2 elements: [Player, Board], where Player is the current player and Board is the current board state.
+At any moment in the game, the Gamestate is represented by a list of 2 elements: [Player, Board], where Player is the current player and Board is the current board state.
 
 `Player` is represented by the atom `p1` or `p2`, depending on the current player.
 `Board` is represented by a list of 8 lists, each representing a row of the board, and in a row each element is a cell of the row. Each cell is represented by the atom `r` for a red jumper, `b` for a black jumper, `.` for an empty cell, `s_r` for a red slipper and `s_b` for a black slipper.
