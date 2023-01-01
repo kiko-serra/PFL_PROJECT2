@@ -17,9 +17,9 @@ Group G02_09:
 
 ## Installation and Execution
 
-To play the game you first need to have SICStus Prolog 4.7 or a newer version currently installed on your machine plus the folder with the source code. 
+To play the game you first need to have SICStus Prolog 4.7.1 or a newer version currently installed on your machine plus the folder with the source code. 
 
-Next, on the SICStus interpreter, consult the file *main.pl* located in the source root directory:
+Next, on the SICStus interpreter, consult the file ***main.pl*** located in the source root directory:
 
 ```prolog
 ?- consult('main.pl').
@@ -37,13 +37,14 @@ Finally, run the the predicate play/0 to enter the game main menu:
 This game is played on a NxM board (say 8x8), with a number of red and black stones facing each other on each board edge.
 
 ### Gameplay
-The players are Black and Red, with Black going first. Each has a supply of stones in their color.
-Jumpers are with capilized letters, Slippers are with lower case letters (i.e R-red jumper. b-black slipper).
+
+There are 2 players, `Player 1` is Red and `Player 2` is Black, with Red going first. Each has a supply of stones in their color.
+**Jumpers** are capitalized letters, while **Slippers** are lower case letters (`R` stands for a red jumper, while `b` for a black slipper).
 
 On each turn, a player can take one of the following actions:
 
-- Move any number of cells to the right or left depending on the color of the stone.
-- When moving a jumper they can jump over one stone above or below them, landing on the immediate adjacent cell (this is only valid if that cell is empty) , demoting that stone to a slipper (if it was a jumper).
+- If you are the `Player 1` (`Player 2`), you can move any number of cells to the right (left).
+- When moving a jumper they can jump over one stone above or below them, landing on the immediate adjacent cell, if that cell is empty, demoting the jumped stone to a slipper (if it was a jumper).
 
 Wins the player that made the last move.
 
@@ -134,7 +135,7 @@ This resulting value is then returned as the output of the `value` predicate.
 
 ## Conclusion
 
-The board game *Ski Jumps* was successfully implemented in the SicStus Prolog 4.7 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
+The board game *Ski Jumps* was successfully implemented in the SicStus Prolog 4.7.1 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
 
 One of the difficulties on the project was displaying an intuitive board in the SicStus terminal, which has a very limited set of characters and customization. This limits the game design, since it's hard to display black/white cells and black/red pieces at the same time. This issue was mitigated by using the characters 'B' and 'R', which isn't ideal.
 

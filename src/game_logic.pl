@@ -122,7 +122,7 @@ move_off_the_board(Board, NewBoard, Piece, [[X,Y]|T], Lenght) :-
       update_matrix(TempBoard, X, Y, ., NewBoard),
       move_off_the_board(Board, TempBoard, Piece, T, Lenght1).
 
-check_normal_move(Board, [X1,Y1,X2,Y2], Piece) :-
+check_normal_move(X1,X2, Piece) :-
       (     (Piece = r; Piece = s_r),
             X2 > X1
       ->    true
@@ -133,8 +133,7 @@ check_normal_move(Board, [X1,Y1,X2,Y2], Piece) :-
             )
       ).
 
-
-check_jump_move(Board, [X1,Y1,X2,Y2], r) :-
+check_jump_move(Board, [X1,Y1,_X2,Y2], r) :-
       (     Y2 =:= Y1 - 2
       ->    (     YEnemy is Y1 - 1,
                   get_piece(Board, X1, YEnemy, EnemyPiece),  
@@ -154,7 +153,7 @@ check_jump_move(Board, [X1,Y1,X2,Y2], r) :-
       ).
 
 
-check_jump_move(Board, [X1,Y1,X2,Y2], b) :-
+check_jump_move(Board, [X1,Y1,_X2,Y2], b) :-
       (     Y2 =:= Y1 - 2
       ->    (     YEnemy is Y1 - 1,
                   get_piece(Board, X1, YEnemy, EnemyPiece),  
@@ -179,7 +178,7 @@ check_move(Player, Board, [X1,Y1,X2,Y2]) :-
       get_piece(Board, X1, Y1, Piece), nl,
       is_from_player(Player, Piece),
       (     Y1 =:= Y2, X1 =\= X2 % Normal Move
-      ->    check_normal_move(Board, [X1,Y1,X2,Y2], Piece)     
+      ->    check_normal_move(X1,X2, Piece)     
       ;     (     X1 =:= X2, Y1 =\= Y2 % falta checkar se é jumper ou não
             -> check_jump_move(Board, [X1,Y1,X2,Y2], Piece)
             ; fail
@@ -258,13 +257,11 @@ move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
       ;     NewBoard = Board
       ).
 
-valid_moves([Player|Board], ListOfMoves) :- % Mudar Board para Gamestate later % First, get only horizontal moves
+valid_moves([Player|_Board], ListOfMoves) :- % Mudar Board para Gamestate later % First, get only horizontal moves
       valid_move_forward(Player, ListOfMoves).
-      %border_pieces(Player, Set2), % Deixar as borders de fora
-      %append(Set1, Set2, ListOfMoves).
 
 
-valid_move_forward(p1, List) :-
+valid_move_forward(p1, List) :- % Change this later
       findall(C1-R1, red(C1,R1), Reds),
       findall(C2-R2, slipper_red(C2,R2), SReds),
       append(Reds, SReds, L1),
@@ -341,6 +338,17 @@ piece_jumps_upwards(Column, Row, p1, Y, List) :-
       ;     List = []
       ).
 
+piece_jumps_upwards(Column, Row, p2, Y, List) :-
+      (     
+            Y < 6,
+            Y1 is Y + 1, Y2 is Y + 2,
+            (red(Column, Y1); slipper_red(Column, Y2)), \+ black(Column, Y2),
+            piece_jumps_upwards(Column, Row, p1, Y2, Tail),
+            Move = [Column, Row, Column, Y2],
+            append([Move], Tail, List)
+      ;     List = []
+      ).
+
 piece_jumps_downwards(Column, Row, p1, Y, List) :-
       (     
             Y > 1,
@@ -352,16 +360,6 @@ piece_jumps_downwards(Column, Row, p1, Y, List) :-
       ;     List = []
       ).
 
-piece_jumps_upwards(Column, Row, p2, Y, List) :-
-      (     
-            Y < 6,
-            Y1 is Y + 1, Y2 is Y + 2,
-            (red(Column, Y1); slipper_red(Column, Y2)), \+ black(Column, Y2),
-            piece_jumps_upwards(Column, Row, p1, Y2, Tail),
-            Move = [Column, Row, Column, Y2],
-            append([Move], Tail, List)
-      ;     List = []
-      ).
 piece_jumps_downwards(Column, Row, p2, Y, List) :-
       (     
             Y > 1,
@@ -396,7 +394,7 @@ value([Player|Board], Value) :-
 level_current_player(_, 0, PlayerLevel) :-
       PlayerLevel = 0.
 
-level_current_player([Player|Board], 1, PlayerLevel) :-
+level_current_player([Player|_Board], 1, PlayerLevel) :-
       (     player(X),
             X == Player
       ->    PlayerLevel = 0 
@@ -404,7 +402,7 @@ level_current_player([Player|Board], 1, PlayerLevel) :-
       ),
       write(PlayerLevel),nl.
 
-level_current_player([Player|Board], 2, PlayerLevel) :-
+level_current_player([Player|_Board], 2, PlayerLevel) :-
       (     player(X),
             X == Player
       ->    PlayerLevel = 0 
@@ -418,19 +416,19 @@ level_current_player(_, 11, PlayerLevel) :-
 level_current_player(_, 22, PlayerLevel) :-
       PlayerLevel = 2.
 
-level_current_player([p1|Board], 12, PlayerLevel) :-
+level_current_player([p1|_Board], 12, PlayerLevel) :-
       PlayerLevel = 1.
 
-level_current_player([p2|Board], 12, PlayerLevel) :-
+level_current_player([p2|_Board], 12, PlayerLevel) :-
       PlayerLevel = 2.
 
-level_current_player([p1|Board], 21, PlayerLevel) :-
+level_current_player([p1|_Board], 21, PlayerLevel) :-
       PlayerLevel = 2.
 
-level_current_player([p2|Board], 21, PlayerLevel) :-
+level_current_player([p2|_Board], 21, PlayerLevel) :-
       PlayerLevel = 1.
 
-game_over([Player|Board], Winner) :-
+game_over([Player|_Board], Winner) :-
       get_all_player_pieces(Player, C1),
       other_player(Player, Opponent),
       get_all_player_pieces(Opponent, C2),
@@ -460,7 +458,7 @@ play_game(Level) :-
       display_game(GameState),
       game_cycle(GameState, Level).
 
-game_cycle(GameState, Level):-
+game_cycle(GameState, _Level):-
       game_over(GameState, Winner), !,
       congratulate(Winner).
 
