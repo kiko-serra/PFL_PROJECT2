@@ -6,15 +6,6 @@ Group G02_09:
 | Francisco Pimentel Serra    | [up202007723](mailto:up202007723@fe.up.pt)|50%            |
 | João Paulo Moreira Araújo   | [up202004293](mailto:up202004293@fe.up.pt)|50%            |
 
-# TODO
-
-[ ] - Fix bot. It only seems to fail with slippers (probably change retract_board method?)
-
-[ ] - Clear up code.
-
-[ ] - ...
-
-
 ## Installation and Execution
 
 To play the game you first need to have SICStus Prolog 4.7.1 or a newer version currently installed on your machine plus the folder with the source code. 
@@ -53,7 +44,51 @@ This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/sk
 ## Game Logic
 ### Game state internal representation
 
+At any moment of the game, the game state is represented by a list of 2 elements: [Player, Board], where Player is the current player and Board is the current board state.
 
+`Player` is represented by the atom `p1` or `p2`, depending on the current player.
+`Board` is represented by a list of 8 lists, each representing a row of the board, and in a row each element is a cell of the row. Each cell is represented by the atom `r` for a red jumper, `b` for a black jumper, `.` for an empty cell, `s_r` for a red slipper and `s_b` for a black slipper.
+
+### `GameState` troughout one game
+### Inicial State
+```prolog
+[p1,
+    [r,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,b],
+    [r,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,b],
+    [r,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,b],
+    [r,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,b]
+]
+```
+### Intermediate State
+```prolog
+[p2,
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,s_b,.,.,.],
+    [r,.,.,.,r,.,.,.],
+    [.,.,.,.,.,b,.,.],
+    [.,.,.,r,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,s_r,.,.,.,.,.],
+    [.,.,b,.,.,.,.,.]
+]
+```
+### Final State
+```prolog
+[p2,
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,.,.,.,.,.,.],
+    [.,.,b,.,.,.,.,.]
+]
+```
 
 ### Game state visualization
 The game menu is diplayed as such:
@@ -125,13 +160,15 @@ The `valid_move_forward` predicate, in turn, calls the `findall` and `find_moves
 
 ### Game state evaluation
 
-The `value(+GameState, +Player, -Value)` predicate is a function in Prolog that takes two arguments: the current game state (represented as a list) and a value (represented as a variable). 
+The `value(+GameState, +Player, -Value)` predicate takes two arguments: the current game state (represented as a list) and a value (represented as a variable). 
 The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8. 
 This resulting value is then returned as the output of the `value` predicate.
 
 ### Computer move
 
-
+The `choose_move` predicate takes three arguments: the current game state (represented as a list), an integer value, and a move (represented as a variable). The function begins calling the `valid_moves` predicate to get a list of valid moves that can be made from the current game state. 
+- If the dificulty is *easy* it choses the next move using the `random_index` predicate and the `nth0` built-in predicate 
+- If the dificultt is *hard* it choses the next move using the `greedy_evaluation` predicate that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
 
 ## Conclusion
 
