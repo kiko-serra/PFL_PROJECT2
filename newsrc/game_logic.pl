@@ -40,6 +40,7 @@ print_main_menu :- % TODO Edit Art Style later on to be readable on SICStus 4.7.
       write('         1. Player vs Player'),nl,nl,
       write('         2. Player vs Computer'),nl,nl,
       write('         3. Computer vs Computer'),nl,nl,
+      write('         4. Instructions'),nl,nl,
       write('         0. Exit'),nl,nl,
       write('======================================================================================================================================='),nl,nl,nl,
       write('> Insert your option\n --> ').
@@ -67,6 +68,18 @@ manage_option(3) :-
       levels(P1Level, P2Level, Level),
       play_game(Level),
       main_menu.
+
+manage_option(4) :-
+      write('> Ski jumps is a board game played by 2 players.'),nl,
+      write('> The player controlling the Red (Black) stones is the player 1 (2), and can only move to the right (left).'),nl,
+      write('> Capitalized letters represent a Jumper stone, which can jump over the opponents pieces, landing on the immediate adjacent cell landing on the immediate adjacent cell, if it is empty.'),nl,
+      write('> Jumped stones are demoted to Slippers, which move like Jumpers, but can not jump'),nl,
+      write('> Wins the player that made the last valid move'),nl,nl,
+      write('> When it is your turn to play, you have to write the move you want your piece to take.'),nl,
+      write('> To do so, you have to write by the following order: *Stone Column**Stone Row**Target Column**Target Column* (Example: a8b8)'),nl,
+      write('> If you ever need help when taking a valid move, you can ask to see all the valid moves with the input **help**.'),nl,nl,
+      main_menu.
+
 
 % Close the game
 manage_option(0) :-
@@ -243,10 +256,10 @@ game_over([Player|_Board], Winner) :-
       get_all_player_pieces(Opponent, C2),
       (
             C1 =:= 0, C2 > 0
-      ->    Winner = Player
+      ->    Winner = Opponent
       ;     (
                  C2 =:= 0, C1 > 0 
-            ->    Winner = Opponent
+            ->    Winner = Player
             ;     (
                   C1 =:= 0, C2 =:= 0
                   -> Winner = tie
@@ -275,7 +288,7 @@ congratulate(tie) :-
       write('The game ended in a tie!').
 
 congratulate(Winner) :-
-      write('Congratulations Player'), symbol(Winner, S), write(S), write(', you won!'),nl.
+      write('Congratulations Player '), symbol(Winner, S), write(S), write(', you won!'),nl.
 
 % level_current_player(+GameState, +Level, -Difficulty)
 % Determines the level of difficulty of the player to make the move
@@ -338,43 +351,39 @@ level_current_player([p2|_Board], 21, Difficulty) :-
 % choose_move(+GameState, +Difficulty, -Move)
 % Gets the next move to be taken by the current Player
 % If the difficulty is 0, the player is a human and has to manually select the move
+% Validates if the chosen move is within the list of valid moves
 choose_move([Player|Board], 0, Move):-
+      valid_moves([Player|Board], ListOfMoves),
       repeat,
-      write(' > Choose skier. ---> '),
-      get_move(Move),
-      (     check_move([Player|Board], Move)
-      ->    write('Move: '), write(Move)
+      write(' > Choose the move. ---> '),
+      get_move(Move, ListOfMoves),
+      (     member(Move, ListOfMoves)
+      ->    write('Move: '), write_moves([Move])
       ;     write('Invalid move. Please try again.'), nl, fail
       ).
 
 % If the difficulty is 1, the player is a computer on a easy difficulty and selects a random move from the valid moves available
 choose_move([Player|Board], 1, Move):-
-      write(' > Choose skier. ---> '),
+      write(' > Choose the move. ---> '),
       valid_moves([Player|Board], ListOfMoves),
       write(ListOfMoves),nl,
       random_index(Index, ListOfMoves),
       nth0(Index, ListOfMoves, Move),
-      write('Move: '), write(Move), nl.
+      ask_to_continue(ListOfMoves).
 
 % If the difficulty is 2, the player is a computer on a hard difficulty and selects the move that will give the best evaluation after playing it
 % It follows a greedy evaluation 
 choose_move([Player|Board], 2, Move):-
-      write(' > Choose skier. ---> '),
+      write(' > Choose the move. ---> '),
       valid_moves([Player|Board], ListOfMoves),
-      greedy_evaluation([Player|Board], ListOfMoves, Move, Value),
-      write('Move: '), write(Move), nl,
-      write('Best Value: '), write(Value), nl.
-
-% check_move(+GameState, +Move)
-% Verifies if the move inserted by the human player contains in the list of valid moves
-check_move([Player|Board], Move) :- % TODO mudar para valid moves
-      valid_moves([Player|Board], ListOfMoves),
-      member(Move, ListOfMoves).
+      greedy_evaluation([Player|Board], ListOfMoves, Move, _Value),
+      ask_to_continue(ListOfMoves).
 
 % move(+GameState, +Move, -NewGameState)
-% Makes the move and updates the state of the game
+% Makes the move and updates the state of the game, removing any piece that may not have any valid moves left
 move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
-      update_board(Board, NewBoard, [X1,Y1,X2,Y2], _),
+      update_board(Board, SecondBoard, [X1,Y1,X2,Y2], _),
+      off_the_board_pieces(SecondBoard, NewBoard),
       other_player(Player, NewPlayer).
 
 
@@ -382,15 +391,19 @@ move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
 % Get the available pieces for the player and retrieve a list with all the valid moves
 valid_moves([p1|_Board], ListOfMoves) :-
       findall(Column1-Row1, red(Column1,Row1), Jumpers),
+      find_moves(Jumpers, p1, List1),
       findall(Column2-Row2, slipper_red(Column2,Row2), Slippers),
-      append(Jumpers, Slippers, List),
-      find_moves(List, p1, ListOfMoves).
+      find_normal_move(Slippers, p1, List2),
+      append(List1, List2, List3),
+      remove_duplicates(List3, ListOfMoves).
 
 valid_moves([p2|_Board], ListOfMoves) :-
       findall(Column1-Row1, black(Column1,Row1), Jumpers),
+      find_moves(Jumpers, p2, List1),
       findall(Column2-Row2, slipper_black(Column2,Row2), Slippers),
-      append(Jumpers, Slippers, List),
-      find_moves(List, p2, ListOfMoves).
+      find_normal_move(Slippers, p2, List2),
+      append(List1, List2, List3),
+      remove_duplicates(List3, ListOfMoves).
 
 % find_moves(+Pieces, +Player, -ListOfMoves)
 % Retrieves a list with the valid moves for the given pieces
@@ -398,8 +411,7 @@ find_moves(Pieces, Player, ListOfMoves) :-
       find_normal_move(Pieces, Player, List1),
       find_upwards_jumps(Pieces, Player, List2),
       find_downwards_jumps(Pieces, Player, List3),
-      append(List1, List2, List3, List4),
-      remove_duplicates(List4, ListOfMoves).
+      append(List1, List2, List3, ListOfMoves).
 
 % find_normal_move(+Pieces, +Player, -ListOfMoves)
 % Retrieves a list with all the valid normal moves for the given pieces
@@ -534,9 +546,9 @@ greedy_evaluation([Player|Board], [H|T], BestMove, BestValue) :-
 % simulate_move(+GameState, +Move, -Value)
 % Simulates a move and obtains the evaluation of the board after it
 simulate_move([Player|Board], [C1,R1,C2,R2], Value) :-
-      update_board(Piece, Board, NewBoard, [C1,R1,C2,R2], WasSlipper),
+      update_board(Board, NewBoard, [C1,R1,C2,R2], WasSlipper),
       value([Player|NewBoard], Value),
-      retract_board(Piece, NewBoard, [C2,R2,C1,R1], WasSlipper).
+      retract_board(NewBoard, _RetractedBoard, [C2,R2,C1,R1], WasSlipper).
 
 % update_board(+Board, -NewBoard, +Move, -WasSlipper)
 % Updates the board with the given move. Stores *WasSlipper* to use in retraction, if needed
@@ -550,9 +562,9 @@ update_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       slipper_piece(OpponentPiece, Slipper),  
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
       update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_matrix(SecondTempBoard, X, YOpponent, Slipper, NewBoard),
+      update_matrix(SecondTempBoard, X, YOpponentPiece, Slipper, NewBoard),
       (
-            update_piece_type(OpponentPiece, X, YOpponent)
+            update_piece_type(OpponentPiece, X, YOpponentPiece)
       ->    WasSlipper = 1
       ;     WasSlipper = 0
       ),
@@ -568,9 +580,9 @@ update_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       slipper_piece(OpponentPiece, Slipper),  
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
       update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_matrix(SecondTempBoard, X, YOpponent, Slipper, NewBoard),
+      update_matrix(SecondTempBoard, X, YOpponentPiece, Slipper, NewBoard),
       (
-            update_piece_type(OpponentPiece, X, YOpponent)
+            update_piece_type(OpponentPiece, X, YOpponentPiece)
       ->    WasSlipper = 1
       ;     WasSlipper = 0
       ),
@@ -584,7 +596,7 @@ update_board(Board, NewBoard, [X1,Y,X2,Y], WasSlipper) :-
       get_piece(Board, X1, Y, Piece),
       update_matrix(Board, X1, Y, EmptySpace, TempBoard),
       update_matrix(TempBoard, X2, Y, Piece, NewBoard),
-      update_piece_position(Piece, [X1,Y,X1,Y]).
+      update_piece_position(Piece, [X1,Y,X2,Y]).
 
 % retract_board(+Board, -NewBoard, +Move, +WasSlipper)
 % Retracts the board from a given move
@@ -596,7 +608,8 @@ retract_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       get_piece(Board, X, Y1, Piece),
       get_piece(Board, X, YOpponentPiece, OpponentPiece),
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),  
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      update_piece_position(Piece, [X,Y1,X,Y2]),  
       (
             WasSlipper =:= 1
       ->    NewBoard = SecondTempBoard
@@ -613,7 +626,8 @@ retract_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       get_piece(Board, X, Y1, Piece),
       get_piece(Board, X, YOpponentPiece, OpponentPiece),
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),  
+      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
+      update_piece_position(Piece, [X,Y1,X,Y2]),  
       (
             WasSlipper =:= 1
       ->    NewBoard = SecondTempBoard
@@ -629,7 +643,8 @@ retract_board(Board, NewBoard, [X1,Y,X2,Y], WasSlipper) :-
       EmptySpace = .,
       get_piece(Board, X1, Y, Piece),
       update_matrix(Board, X1, Y, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X2, Y, Piece, NewBoard).
+      update_matrix(TempBoard, X2, Y, Piece, NewBoard),
+      update_piece_position(Piece, [X1,Y,X2,Y]).
 
 % value(+GameState, -Value)
 % Get the value of the current state of the game
@@ -643,6 +658,32 @@ value([Player|Board], Value) :-
       Val is V1 - V2,
       Value is Val / 8.
 
+% off_the_board_pieces(+Board, -NewBoard)
+% Removes pieces from the board that don't have any valid move left
+off_the_board_pieces(Board, NewBoard) :-
+      valid_moves([p1|Board], Player1Moves),
+      valid_moves([p2|Board], Player2Moves),
+      append(Player1Moves, Player2Moves, ListOfMoves),
+      findall([X, Y], (red(X, Y), X = 7, \+ member([X,Y,_,_], ListOfMoves)), L1),
+      findall([X, Y], (slipper_red(X, Y), X = 7, \+ member([X,Y,_,_], ListOfMoves)), L2),
+      findall([X, Y], (black(X, Y), X = 0, \+ member([X,Y,_,_], ListOfMoves)), L3),
+      findall([X, Y], (slipper_black(X, Y), X = 0, \+ member([X,Y,_,_], ListOfMoves)), L4),
+      length(L1, Lenght1), length(L2, Lenght2), length(L3, Lenght3), length(L4, Lenght4),
+      move_off_the_board(Board, B2, r, L1, Lenght1),
+      move_off_the_board(B2, B3, s_r, L2, Lenght2),
+      move_off_the_board(B3, B4, b, L3, Lenght3),
+      move_off_the_board(B4, NewBoard, s_b, L4, Lenght4).
+      
+% move_off_the_board(+Board, -NewBoard, +Piece, +ListCoordinates, +Lenght)
+% Deletes as many piece types from the database and updates the state of the game
+move_off_the_board(Board, NewBoard,_, [], 0):-
+      NewBoard = Board.
+
+move_off_the_board(Board, NewBoard, Piece, [[X,Y]|T], Lenght) :-
+      Lenght1 is Lenght - 1,
+      delete_piece_from_board(Piece, X, Y),
+      update_matrix(TempBoard, X, Y, ., NewBoard),
+      move_off_the_board(Board, TempBoard, Piece, T, Lenght1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -655,9 +696,9 @@ other_player(p1, Opponent) :-
 other_player(p2, Opponent) :-
       Opponent = p1.
 
-% get_move(-Move)
-% Gets the move from the input and validates it
-get_move(Move) :-
+% get_move(-Move, +ListOfMoves)
+% Gets the move from the input and validates it. Also shows the valid list of moves if the user asks for help
+get_move(Move, ListOfMoves) :-
       repeat,
       read(String),
       (     sub_atom(String, 0, 1, _, A),
@@ -669,7 +710,12 @@ get_move(Move) :-
             validate_row(B,R1),
             validate_column(C, C2),
             validate_row(D,R2)
-      ->    Move = [C1,R1,C2,R2]
+      ->    Move = [C1,R1,C2,R2],
+            (     [A,B,C,D] \== ['h','e','l','p']
+            ->    true
+            ;     write('Moves: '), write_moves(ListOfMoves), nl,
+                  write(' > Choose the move. ---> '), fail
+            )
       ;     write('Invalid Input. Please try again writing in the format *a1b1*.'), nl, fail
       ).
 
@@ -699,6 +745,9 @@ validate_column('g', Column) :-
 validate_column('h', Column) :-
       Column = 7.
 
+validate_column('l', Column) :-
+      Column = 9.
+
 % validate_row(+Letter, -Row)
 % Validates the number of the row chosen
 validate_row('1', Row) :-
@@ -724,6 +773,12 @@ validate_row('7', Row) :-
   
 validate_row('8', Row) :-
       Row = 0.
+
+validate_row('e', Row) :-
+      Row = 9.
+
+validate_row('p', Row) :-
+      Row = 9.
 
 % append(+List1, +List2, +List3, -NewList)
 % Joins 3 lists into a single one
@@ -799,11 +854,19 @@ delete_piece_from_board(s_b, X, Y) :-
       retract(slipper_black(X,Y)).
 
 % jumper_piece(+Slipper, -Jumper)
-% Get the jumper piece for a given Slipper
+% Get the jumper piece for a given slipper
 jumper_piece(s_r, Jumper) :-
       Jumper = r.     
 jumper_piece(s_b, Jumper) :-
       Jumper = b.
+
+% slipper_piece(+Jumper, -Slipper)
+% Get the slipper piece for a given jumper
+slipper_piece(r, Slipper) :-
+      Slipper = s_r.     
+slipper_piece(b, Slipper) :-
+      Slipper = s_b.
+
 
 % random_index(-Index, +ListOfMoves)
 % Obtain a random index from a list of moves
@@ -817,5 +880,66 @@ remove_duplicates([], []).
 remove_duplicates([H|T], List) :- member(H, T), remove_duplicates(T, List).
 remove_duplicates([H|T], [H|List]) :- \+ member(H, T), remove_duplicates(T, List).
 
+% write_moves(+ListOfMoves)
+% Outputs the list of moves into a readable one
+write_moves([]) :-
+      nl.
+write_moves([[X1,Y1,X2,Y2]|ListOfMoves]) :-
+      column_to_string(X1, C1),
+      column_to_string(X2, C2),
+      row_to_string(Y1, R1),
+      row_to_string(Y2, R2),
+      write([C1,R1,C2,R2]),
+      write_moves(ListOfMoves).
+
+% 
+
+ask_to_continue(ListOfMoves) :-
+      repeat,
+      write('1.   Continue'),
+      write('2.   Show list of valid moves'),
+      read(Input),
+      (     Input =:= 1
+      ->    true
+      ;     (     Input =:= 2
+            ->    write('Moves: '), write_moves(ListOfMoves)
+            ;     write('That option does not exist, try again.\n'), fail
+            )
+
+      ).
+
+column_to_string(0, S):-
+      S = 'A'.
+column_to_string(1, S):-
+      S = 'B'.
+column_to_string(2, S):-
+      S = 'C'.
+column_to_string(3, S):-
+      S = 'D'.
+column_to_string(4, S):-
+      S = 'E'.
+column_to_string(5, S):-
+      S = 'F'.
+column_to_string(6, S):-
+      S = 'G'.
+column_to_string(7, S):-
+      S = 'H'.
+
+row_to_string(0, S):-
+      S = 8.
+row_to_string(1, S):-
+      S = 7.
+row_to_string(2, S):-
+      S = 6.
+row_to_string(3, S):-
+      S = 5.
+row_to_string(4, S):-
+      S = 4.
+row_to_string(5, S):-
+      S = 3.
+row_to_string(6, S):-
+      S = 2.
+row_to_string(7, S):-
+      S = 1.
 %%%%%%%%%%%%%%%%%%%%%%%%%
 

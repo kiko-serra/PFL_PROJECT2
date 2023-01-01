@@ -466,6 +466,6 @@ game_cycle(GameState, Level):-
       level_current_player(GameState, Level, PlayerLevel),
       choose_move(GameState, PlayerLevel, Move),
       move(GameState, Move, NewGameState),
-      display_game(NewGameState), !,
+      display_game(NewGameState),
       game_cycle(NewGameState, Level).
 
