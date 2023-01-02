@@ -144,7 +144,7 @@ The board display predicate, `display_game(+GameState)`. The Red jumpers are rep
 
 The `move(+GameState, +Move, -NewGameState)` predicate takes three arguments: the current game state (represented as a list) that contains the next player to make a move, a proposed move (also represented as a list), and the resulting new game state after the move has been executed (also represented as a list). 
 The function begins by obtaining a list of valid moves that can be made from the current game state for the player by calling the `valid_moves` predicate. It then checks to see if the proposed move is a member of this list by using the `length` and `member` built-in predicates. 
-If the proposed move is not valid, the new game state is set to be the same as the current game state. If the proposed move is valid, the function updates the game state to reflect the movement of the piece by calling the `get_piece,` `update_board,` `update_piece_position,` and `update_player` predicates. 
+If the proposed move is not valid, the new game state is set to be the same as the current game state. If the proposed move is valid, the function updates the game state to reflect the movement of the piece by calling the `get_piece`, `update_board`, `update_piece_position`, and `update_player` predicates. 
 It also removes any pieces that have moved off the board by calling the `off_the_board_pieces` predicate.
 
 ### Game Over
