@@ -358,7 +358,6 @@ choose_move([Player|Board], 0, Move):-
 choose_move([Player|Board], 1, Move):-
       write(' > Choose the move. ---> '),
       valid_moves([Player|Board], ListOfMoves),
-      write(ListOfMoves),nl,
       random_index(Index, ListOfMoves),
       nth0(Index, ListOfMoves, Move),
       ask_to_continue(ListOfMoves).
