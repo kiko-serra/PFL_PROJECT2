@@ -17,15 +17,18 @@ Next, on the SICStus interpreter, consult the file ***main.pl*** located in the 
 ```
 
 If you're using Windows, you can also do this by selecting `File` -> `Consult...` and selecting the file `main.pl`.
-    
-Finally, run the the predicate play/0 to enter the game main menu: 
+
+Finally, run the the predicate play/0 to enter the game main menu:
+
 ```prolog
 ?- play.
 ```
+
 ## Game Description
+
 ### Board
 
-This game is played on a 8x8 board, with an equal number of red and black stones facing each other on each board edge.
+This game is played on a NxM board (say 8x8), with an equal number of red and black stones facing each other on each board edge.
 
 ### Gameplay
 
@@ -34,23 +37,24 @@ There are 2 players, `Player 1` is Red and `Player 2` is Black, with Red going f
 
 On each turn, a player can take one of the following actions:
 
-- If you are the `Player 1` (`Player 2`), you can move any number of cells to the right (left).
-- When moving a jumper they can jump over one stone above or below them, landing on the immediate adjacent cell, if that cell is empty, demoting the jumped stone to a slipper (if it was a jumper).
+- If you are the `Player 1` (`Player 2`), you can move one stone any number of cells to the right (left).
+- When moving a jumper, they can jump over an opponent stone that stands above or below it, landing on the immediate adjacent cell, if that cell is empty, demoting the jumped stone to a slipper (if it was a jumper).
 
 Wins the player that made the last move.
 
-This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/skijump.htm) provided in moodle.
+This information was taken from the [website](https://www.di.fc.ul.pt/~jpn/gv/skijump.htm) provided in moodle and from the volume I of [Winning Ways](https://annarchive.com/files/Winning%20Ways%20for%20Your%20Mathematical%20Plays%20V1.pdf).
 
-## Game Logic
-### Game state internal representation
+## **Game Logic**
+
+### **Game state internal representation**
 
 At any moment in the game, the Gamestate is represented by a list of 2 elements: [Player, Board], where Player is the current player and Board is the current board state.
 
 `Player` is represented by the atom `p1` or `p2`, depending on the current player.
 `Board` is represented by a list of 8 lists, each representing a row of the board, and in a row each element is a cell of the row. Each cell is represented by the atom `r` for a red jumper, `b` for a black jumper, `.` for an empty cell, `s_r` for a red slipper and `s_b` for a black slipper.
 
-### `GameState` troughout one game
-### Inicial State
+### **`GameState` troughout one game**
+#### **Inicial State**
 ```prolog
 [p1,
     [r,.,.,.,.,.,.,.],
@@ -63,7 +67,7 @@ At any moment in the game, the Gamestate is represented by a list of 2 elements:
     [.,.,.,.,.,.,.,b]
 ]
 ```
-### Intermediate State
+#### **Intermediate State**
 ```prolog
 [p2,
     [.,.,.,.,.,.,.,.],
@@ -76,7 +80,7 @@ At any moment in the game, the Gamestate is represented by a list of 2 elements:
     [.,.,b,.,.,.,.,.]
 ]
 ```
-### Final State
+#### **Final State**
 ```prolog
 [p2,
     [.,.,.,.,.,.,.,.],
@@ -90,7 +94,7 @@ At any moment in the game, the Gamestate is represented by a list of 2 elements:
 ]
 ```
 
-### Game state visualization
+### **Game state visualization**
 The game menu is diplayed as such:
 ```
 =======================================================================================================================================
@@ -140,42 +144,55 @@ Once the game starts, the board is displayed as such:
 
 The board display predicate, `display_game(+GameState)`. The Red jumpers are represented as `R` and the Black as `B`, the Red slippers are represented as `r` and the Black as `b`.
 
-### Move execution
+### **Move execution**
 
-The `move(+GameState, +Move, -NewGameState)` predicate takes three arguments: the current game state (represented as a list) that contains the next player to make a move, a proposed move (also represented as a list), and the resulting new game state after the move has been executed (also represented as a list). 
-The function begins by obtaining a list of valid moves that can be made from the current game state for the player by calling the `valid_moves` predicate. It then checks to see if the proposed move is a member of this list by using the `length` and `member` built-in predicates. 
-If the proposed move is not valid, the new game state is set to be the same as the current game state. If the proposed move is valid, the function updates the game state to reflect the movement of the piece by calling the `get_piece`, `update_board`, `update_piece_position`, and `update_player` predicates. 
-It also removes any pieces that have moved off the board by calling the `off_the_board_pieces` predicate.
+The `move(+GameState, +Move, -NewGameState)` predicate takes three arguments: the current game state, the move to make, and the resulting new game state after the move has been executed. It starts by updating the board with the new move calling the `update_board(+Board, -NewBoard, +Move, -WasSlipper)` predicate:
 
-### Game Over
+- Update the position of the stone that was moved both on the board and on the database;
+- If the move was a jump, update the piece type of the jumped piece (if it wasn't a slipper already).
 
-The `gameOver(+GameState, -Winner)` predicate takes two arguments: the current game state (represented as a list) and the winner of the game (represented as a variable). 
-It calls the `get_all_player_pieces` predicate to get the number of pieces belonging to the current player and the opponent player. It then uses a series of conditional statements to determine the winner of the game based on the number of pieces each player has. If the current player has no pieces and the opponent has at least one piece, the winner is declared to be player 1 (p1). 
-If the opponent has no pieces and the current player has at least one piece, the winner is declared to be player 2 (p2). If both players have no pieces, the game is declared a tie. If none of these conditions are met, the function fails.
+Afterwards, it removes (takes off the board) the stones that don't have any valid moves left by calling the `off_the_board_stones(+Board, -NewBoard)` predicate. These stones are on the opponents starting positions and are not able to jump over an adjacent stone. Finally, it updates the new game state with the next player to make a move.
 
-### List of valid moves:
+### **Game Over**
 
-The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state (represented as a list) and a list of valid moves. The function calls the `valid_move_forward` predicate to get a list of horizontal moves that can be made from the current game state. 
-The `valid_move_forward` predicate, in turn, calls the `findall` and `find_moves` predicates to find all the pieces of a certain color and determine the possible moves that can be made with those pieces. The `valid_moves` predicate then returns this list of moves as its output. 
+The `gameOver(+GameState, -Winner)` predicate takes two arguments: the current game state (represented as a list) and the winner of the game (represented as a variable).
+It calls the `get_all_player_stones` predicate to get the number of stones belonging to the current player and the opponent player. It then uses a series of conditional statements to determine the winner of the game based on the number of stones each player has. If the current player has no stones and the opponent has at least one stone, the winner is declared to be player 1 (p1).
+If the opponent has no stones and the current player has at least one stone, the winner is declared to be player 2 (p2). If none of these conditions are met, the function fails.
 
-### Game state evaluation
+### **List of valid moves:**
 
-The `value(+GameState, +Player, -Value)` predicate takes two arguments: the current game state (represented as a list) and a value (represented as a variable). 
-The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8. 
+The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state (represented as a list) and a list of valid moves. The function calls the `valid_move_forward` predicate to get a list of horizontal moves that can be made from the current game state.
+The `valid_move_forward` predicate, in turn, calls the `findall` and `find_moves` predicates to find all the stones of a certain color and determine the possible moves that can be made with those stones. The `valid_moves` predicate then returns this list of moves as its output.
+
+### **Game state evaluation**
+
+The `value(+GameState, +Player, -Value)` predicate takes two arguments: the current game state (represented as a list) and a value (represented as a variable).
+The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8.
 This resulting value is then returned as the output of the `value` predicate.
 
-### Computer move
+### **Computer move**
 
-The `choose_move(+GameState, +Difficulty, -Move)` predicate takes three arguments: the current game state (represented as a list), an integer value, and a move (represented as a variable). The function begins calling the `valid_moves` predicate to get a list of valid moves that can be made from the current game state. 
-- If the difficulty is *easy* it choses the next move using the `random_index` predicate and the `nth0` built-in predicate 
-- If the difficulty is *hard* it choses the next move using the `greedy_evaluation` predicate that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
+The `choose_move(+GameState, +Level, -Move)` predicate takes three arguments, the current game state (represented as a list) that also contains the next player to make a move, the level of difficulty of that player and the Move that it will make (this is represented as a list just such as `[X1,Y1,X2,Y2]`, being `*1` the stone origin and `*2` the stone destination cell).
+The level of difficulty can take one of the following values:
 
-## Conclusion
+- **1** if it is an easy difficulty computer. Chooses randomly a move from the list of valid moves using the library random to choose an index of that list (with the predicates `random_index` and `nth0`);
+- **2** if it is an hard difficulty computer. Uses the predicate `greedy_evaluation` that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
+
+### **Human move**
+
+The player uses the same predicate `choose_move(+GameState, +Level, -Move)` to get the move he is about to make only if the *`Level`* is **0**. He is prompted to write a move with the predicate `get_move(-Move, +ListOfMoves)`. This last predicate also allows the user to ask for help (with the input `help.`), which shows all the available moves he can make at that time.
+
+## **Conclusion**
 
 The board game *Ski Jumps* was successfully implemented in the SicStus Prolog 4.7.1 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
 
-One of the difficulties on the project was displaying an intuitive board in the SicStus terminal, which has a very limited set of characters and customization. This limits the game design, since it's hard to display black/white cells and black/red pieces at the same time. This issue was mitigated by using the characters 'B' and 'R', which isn't ideal.
+One of the difficulties on the project was displaying an intuitive board in the SicStus terminal, which has a very limited set of characters and customization. This limits the game design, since it's hard to display black/white cells and black/red stones at the same time.
 
-### Sources
+Also, we would've liked to have further time to develop the game and add the possibility for the user to choose the board dimensions.
+
+Regardless, the development of *Ski Jumps* was crucial for the deepening of our knowledge on the Prolog language, and we may have ended up understanding the need for such a language in our paths as computer engineers.
+
+### **Sources**
+
 - [Game Rules](https://www.di.fc.ul.pt/~jpn/gv/skijump.htm)
 - [Book](https://annarchive.com/files/Winning%20Ways%20for%20Your%20Mathematical%20Plays%20V1.pdf)

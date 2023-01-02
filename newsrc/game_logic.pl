@@ -29,14 +29,14 @@ clear_data :-
 print_main_menu :- % TODO Edit Art Style later on to be readable on SICStus 4.7.1
       nl,nl,
       write('======================================================================================================================================='),nl,nl,
-      write('     ________       ___  __        ___                        ___      ___  ___      _____ ______       ________    ________'),nl,      
-      write('    |\\   ____\\     |\\  \\|\\  \\     |\\  \\                      |\\  \\    |\\  \\|\\  \\    |\\   _ \\  _   \\    |\\   __  \\  |\\   ____\\     '),nl,
-      write('    \\ \\  \\___|_    \\ \\  \\/  /|_   \\ \\  \\    ____________     \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\\\__\\ \\  \\   \\ \\  \\|\\  \\ \\ \\  \\___|_    '),nl,
-      write('     \\ \\_____  \\    \\ \\   ___  \\   \\ \\  \\  |\\____________\\ __ \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\|__| \\  \\   \\ \\   ____\\ \\ \\_____  \\   '),nl,
-      write('      \\|____|\\  \\    \\ \\  \\\\ \\  \\   \\ \\  \\ \\|____________||\\  \\\\_\\  \\   \\ \\  \\\\\\  \\   \\ \\  \\    \\ \\  \\   \\ \\  \\___|  \\|____|\\  \\  '),nl,
-      write('        ____\\_\\  \\    \\ \\__\\\\ \\__\\   \\ \\__\\               \\ \\________\\   \\ \\_______\\   \\ \\__\\    \\ \\__\\   \\ \\__\\       ____\\_\\  \\ '),nl,
-      write('       |\\_________\\    \\|__| \\|__|    \\|__|                \\|________|    \\|_______|    \\|__|     \\|__|    \\|__|      |\\_________\\ '),nl,
-      write('       \\|_________|                                                                                                   \\|_________|' ),nl,nl,
+      write('    ________       ___  __        ___                        ___      ___  ___      _____ ______       ________    ________'),nl,      
+      write('   |\\   ____\\     |\\  \\|\\  \\     |\\  \\                      |\\  \\    |\\  \\|\\  \\    |\\   _ \\  _   \\    |\\   __  \\  |\\   ____\\     '),nl,
+      write('   \\ \\  \\___|_    \\ \\  \\/  /|_   \\ \\  \\    ____________     \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\\\__\\ \\  \\   \\ \\  \\|\\  \\ \\ \\  \\___|_    '),nl,
+      write('    \\ \\_____  \\    \\ \\   ___  \\   \\ \\  \\  |\\____________\\ __ \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\|__| \\  \\   \\ \\   ____\\ \\ \\_____  \\   '),nl,
+      write('     \\|____|\\  \\    \\ \\  \\\\ \\  \\   \\ \\  \\ \\|____________||\\  \\\\_\\  \\   \\ \\  \\\\\\  \\   \\ \\  \\    \\ \\  \\   \\ \\  \\___|  \\|____|\\  \\  '),nl,
+      write('       ____\\_\\  \\    \\ \\__\\\\ \\__\\   \\ \\__\\               \\ \\________\\   \\ \\_______\\   \\ \\__\\    \\ \\__\\   \\ \\__\\       ____\\_\\  \\ '),nl,
+      write('      |\\_________\\    \\|__| \\|__|    \\|__|                \\|________|    \\|_______|    \\|__|     \\|__|    \\|__|      |\\_________\\ '),nl,
+      write('      \\|_________|                                                                                                   \\|_________|' ),nl,nl,
       write('         1. Player vs Player'),nl,nl,
       write('         2. Player vs Computer'),nl,nl,
       write('         3. Computer vs Computer'),nl,nl,
@@ -72,12 +72,14 @@ manage_option(3) :-
 manage_option(4) :-
       write('> Ski jumps is a board game played by 2 players.'),nl,
       write('> The player controlling the Red (Black) stones is the player 1 (2), and can only move to the right (left).'),nl,
-      write('> Capitalized letters represent a Jumper stone, which can jump over the opponents pieces, landing on the immediate adjacent cell landing on the immediate adjacent cell, if it is empty.'),nl,
-      write('> Jumped stones are demoted to Slippers, which move like Jumpers, but can not jump'),nl,
-      write('> Wins the player that made the last valid move'),nl,nl,
-      write('> When it is your turn to play, you have to write the move you want your piece to take.'),nl,
-      write('> To do so, you have to write by the following order: *Stone Column**Stone Row**Target Column**Target Column* (Example: a8b8)'),nl,
-      write('> If you ever need help when taking a valid move, you can ask to see all the valid moves with the input **help**.'),nl,nl,
+      write('> Capitalized letters represent a Jumper stone, which can jump over the opponents stones, landing on the immediate adjacent cell landing on the immediate adjacent cell, if it is empty.'),nl,
+      write('> Jumped stones are demoted to Slippers, which move like Jumpers, but can not jump.'),nl,
+      write('> Wins the player that made the last valid move.'),nl,nl,
+      write('> When it is your turn to play, you have to write the move you want your stone to take.'),nl,
+      write('> To do so, you have to write by the following order: *Stone Column**Stone Row**Target Column**Target Column* (Example: a8b8).'),nl,
+      write('> If you ever need help when taking a valid move, you can ask to see all the valid moves with the input *help*.'),nl,nl,
+      write('Enter any character to go back to main menu.'), nl,
+      read(_),
       main_menu.
 
 
@@ -102,7 +104,7 @@ manage_side(1) :-
 manage_side(2) :-
       assertz(player(p2)).
 
-% Choose the pieces the human wants to play with; Repeat if input not wanted
+% Choose the stones the human wants to play with; Repeat if input not wanted
 % side/0
 side :-
       repeat,
@@ -150,7 +152,7 @@ levels(2,2,22).
 
 % initial_state(+Size, -GameState)
 % Builds the initial state of a 8 by 8 board and saves it into *GameState*
-% Asserts into the database every red and black piece of the initial board, and the size of the board
+% Asserts into the database every red and black stone of the initial board, and the size of the board
 initial_state(Size, GameState) :-
       GameState = [p1,
             [r,.,.,.,.,.,.,.],
@@ -214,10 +216,10 @@ print_line([CurrentElement|RestOfLine]) :-
 symbol(p1, S) :- S='1'.       % Player 1
 symbol(p2, S) :- S='2'.       % Player 2
 symbol(., S) :- S=' '.        % Empty field on the board
-symbol(r, S) :- S='R'.        % Red Jumper Piece
-symbol(b, S) :- S='B'.        % Black Jumper Piece
-symbol(s_r, S) :- S='r'.      % Red Slipper Piece
-symbol(s_b, S) :- S='b'.      % Black Slipper Piece
+symbol(r, S) :- S='R'.        % Red Jumper Stone
+symbol(b, S) :- S='B'.        % Black Jumper Stone
+symbol(s_r, S) :- S='r'.      % Red Slipper Stone
+symbol(s_b, S) :- S='b'.      % Black Slipper Stone
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -237,118 +239,110 @@ game_cycle(GameState, _Level):-
       game_over(GameState, Winner), !,
       congratulate(Winner).
 
-% Normal cycle that the game follows. Gets the difficulty of the current player (if it is a computer)
+% Normal cycle that the game follows. Gets the level of difficulty of the current player (if it is a computer)
 % And gets to choose a move to make. After the move, the cycle resumes.
 game_cycle(GameState, Level):-
-      level_current_player(GameState, Level, Difficulty),
-      choose_move(GameState, Difficulty, Move),
+      level_current_player(GameState, Level, LevelOfDifficulty),
+      choose_move(GameState, LevelOfDifficulty, Move),
       move(GameState, Move, NewGameState),
       display_game(NewGameState), !,
       game_cycle(NewGameState, Level).
 
 % game_over(+GameState, -Winner)
-% Counts the number of pieces on the board for each player.
-% If both players still have pieces, it fails, otherwise it determines the winner.
-% If there are no remaining pieces on the board for both players, it ends in a tie.
+% Counts the number of stones on the board for each player.
+% If both players still have stones, it fails, otherwise it determines the winner.
 game_over([Player|_Board], Winner) :-
-      get_all_player_pieces(Player, C1),
+      get_all_player_stones(Player, C1),
       other_player(Player, Opponent),
-      get_all_player_pieces(Opponent, C2),
+      get_all_player_stones(Opponent, C2),
       (
             C1 =:= 0, C2 > 0
       ->    Winner = Opponent
       ;     (
                  C2 =:= 0, C1 > 0 
             ->    Winner = Player
-            ;     (
-                  C1 =:= 0, C2 =:= 0
-                  -> Winner = tie
-                  ; fail
-                  )
+            ;     fail
             )
       ).
 
-% get_all_player_pieces(+Player, -Length)
-% Get all the *Player* pieces on the board and outputs the amount
-get_all_player_pieces(p1, Length) :-
+% get_all_player_stones(+Player, -Length)
+% Get all the *Player* stones on the board and outputs the amount
+get_all_player_stones(p1, Length) :-
       findall(C1-R1, red(C1,R1), Jumpers),
       findall(C2-R2, slipper_red(C2,R2), Slippers),
       append(Jumpers, Slippers, List),
       length(List, Length).
   
-get_all_player_pieces(p2, Length) :-
+get_all_player_stones(p2, Length) :-
       findall(C1-R1, black(C1,R1), Blacks),
       findall(C2-R2, slipper_black(C2,R2), SBlacks),
       append(Blacks, SBlacks, List),
       length(List, Length).
 
 % congratulate(+Winner)
-% Unless there is a tie, congratulates the player that won
-congratulate(tie) :-
-      write('The game ended in a tie!').
-
+% Congratulates the Winner player
 congratulate(Winner) :-
       write('Congratulations Player '), symbol(Winner, S), write(S), write(', you won!'),nl.
 
-% level_current_player(+GameState, +Level, -Difficulty)
+% level_current_player(+GameState, +Level, -LevelOfDifficulty)
 % Determines the level of difficulty of the player to make the move
-% If the *Difficulty* is 0, it represents the human is going to play
-% If the *Difficulty* is 1 (2), the difficulty of the computer that is going to make a move is easy (hard).
+% If the *LevelOfDifficulty* is 0, it represents the human is going to play
+% If the *LevelOfDifficulty* is 1 (2), the difficulty of the computer that is going to make a move is easy (hard).
 % Corresponds to a Player versus Player game
-level_current_player(_, 0, Difficulty) :-
-      Difficulty = 0.
+level_current_player(_, 0, LevelOfDifficulty) :-
+      LevelOfDifficulty = 0.
 
 % Corresponds to a Player versus Computer game
 % Determines if the current player is a human or a computer on a easy difficulty
 % If there is an instance of *player(Player)* on the database, the next move is for the human 
-level_current_player([Player|_Board], 1, Difficulty) :-
+level_current_player([Player|_Board], 1, LevelOfDifficulty) :-
       (     player(X),
             X == Player
-      ->    Difficulty = 0 
-      ;     Difficulty = 1
+      ->    LevelOfDifficulty = 0 
+      ;     LevelOfDifficulty = 1
       ).
 
 % Corresponds to a Player versus Computer game
 % Determines if the current player is a human or a computer on a hard difficulty 
 % If there is an instance of *player(Player)* on the database, the next move is for the human
-level_current_player([Player|_Board], 2, Difficulty) :-
+level_current_player([Player|_Board], 2, LevelOfDifficulty) :-
       (     player(X),
             X == Player
-      ->    Difficulty = 0 
-      ;     Difficulty = 2
+      ->    LevelOfDifficulty = 0 
+      ;     LevelOfDifficulty = 2
       ).
 
 % Corresponds to a Computer versus Computer game
 % Both computers are on a easy difficulty
-level_current_player(_, 11, Difficulty) :-
-      Difficulty = 1.
+level_current_player(_, 11, LevelOfDifficulty) :-
+      LevelOfDifficulty = 1.
 
 % Corresponds to a Computer versus Computer game
 % Both computers are on a hard difficulty
-level_current_player(_, 22, Difficulty) :-
-      Difficulty = 2.
+level_current_player(_, 22, LevelOfDifficulty) :-
+      LevelOfDifficulty = 2.
 
 % Corresponds to a Computer versus Computer game
 % If the next move is for the Player 1, then the difficulty is easy
-level_current_player([p1|_Board], 12, Difficulty) :-
-      Difficulty = 1.
+level_current_player([p1|_Board], 12, LevelOfDifficulty) :-
+      LevelOfDifficulty = 1.
 
 % Corresponds to a Computer versus Computer game
 % If the next move is for the Player 2, then the difficulty is hard
-level_current_player([p2|_Board], 12, Difficulty) :-
-      Difficulty = 2.
+level_current_player([p2|_Board], 12, LevelOfDifficulty) :-
+      LevelOfDifficulty = 2.
 
 % Corresponds to a Computer versus Computer game
 % If the next move is for the Player 1, then the difficulty is hard
-level_current_player([p1|_Board], 21, Difficulty) :-
-      Difficulty = 2.
+level_current_player([p1|_Board], 21, LevelOfDifficulty) :-
+      LevelOfDifficulty = 2.
 
 % Corresponds to a Computer versus Computer game
 % If the next move is for the Player 1, then the difficulty is easy
-level_current_player([p2|_Board], 21, Difficulty) :-
-      Difficulty = 1.
+level_current_player([p2|_Board], 21, LevelOfDifficulty) :-
+      LevelOfDifficulty = 1.
 
-% choose_move(+GameState, +Difficulty, -Move)
+% choose_move(+GameState, +Level, -Move)
 % Gets the next move to be taken by the current Player
 % If the difficulty is 0, the player is a human and has to manually select the move
 % Validates if the chosen move is within the list of valid moves
@@ -380,15 +374,15 @@ choose_move([Player|Board], 2, Move):-
       ask_to_continue(ListOfMoves).
 
 % move(+GameState, +Move, -NewGameState)
-% Makes the move and updates the state of the game, removing any piece that may not have any valid moves left
-move([Player|Board], [X1,Y1,X2,Y2], [NewPlayer|NewBoard]) :-
-      update_board(Board, SecondBoard, [X1,Y1,X2,Y2], _),
-      off_the_board_pieces(SecondBoard, NewBoard),
+% Makes the move and updates the state of the game, removing any stone that may not have any valid moves left
+move([Player|Board], Move, [NewPlayer|NewBoard]) :-
+      update_board(Board, SecondBoard, Move, _),
+      off_the_board_stones(SecondBoard, NewBoard),
       other_player(Player, NewPlayer).
 
 
 % valid_moves(+GameState, -ListOfMoves)
-% Get the available pieces for the player and retrieve a list with all the valid moves
+% Get the available stones for the player and retrieve a list with all the valid moves
 valid_moves([p1|_Board], ListOfMoves) :-
       findall(Column1-Row1, red(Column1,Row1), Jumpers),
       find_moves(Jumpers, p1, List1),
@@ -405,120 +399,120 @@ valid_moves([p2|_Board], ListOfMoves) :-
       append(List1, List2, List3),
       remove_duplicates(List3, ListOfMoves).
 
-% find_moves(+Pieces, +Player, -ListOfMoves)
-% Retrieves a list with the valid moves for the given pieces
-find_moves(Pieces, Player, ListOfMoves) :-
-      find_normal_move(Pieces, Player, List1),
-      find_upwards_jumps(Pieces, Player, List2),
-      find_downwards_jumps(Pieces, Player, List3),
+% find_moves(+Stones, +Player, -ListOfMoves)
+% Retrieves a list with the valid moves for the given stones
+find_moves(Stones, Player, ListOfMoves) :-
+      find_normal_move(Stones, Player, List1),
+      find_upwards_jumps(Stones, Player, List2),
+      find_downwards_jumps(Stones, Player, List3),
       append(List1, List2, List3, ListOfMoves).
 
-% find_normal_move(+Pieces, +Player, -ListOfMoves)
-% Retrieves a list with all the valid normal moves for the given pieces
-find_normal_move(Pieces, Player, ListOfMoves) :-
+% find_normal_move(+Stones, +Player, -ListOfMoves)
+% Retrieves a list with all the valid normal moves for the given stones
+find_normal_move(Stones, Player, ListOfMoves) :-
       findall(
             Move,
             (
-                  member(Col-Row, Pieces),
-                  piece_moves(Col, Row, Player, Col, List),
+                  member(Col-Row, Stones),
+                  stone_moves(Col, Row, Player, Col, List),
                   member(Move, List)
             ),
             ListOfMoves
       ).
 
-% find_upwards_jumps(+Pieces, +Player, -ListOfMoves)
-% Retrieves a list with all the valid upward jumps for the given pieces
-find_upwards_jumps(Pieces, Player, ListOfMoves) :-
+% find_upwards_jumps(+Stones, +Player, -ListOfMoves)
+% Retrieves a list with all the valid upward jumps for the given stones
+find_upwards_jumps(Stones, Player, ListOfMoves) :-
       findall(
             JumpUp,
             (
-                  member(Col-Row, Pieces),
-                  piece_jumps_upwards(Col, Row, Player, Row, List),
+                  member(Col-Row, Stones),
+                  stone_jumps_upwards(Col, Row, Player, Row, List),
                   member(JumpUp, List)
             ),
             ListOfMoves
       ).
 
-% find_downwards_jumps(+Pieces, +Player, -ListOfMoves)
-% Retrieves a list with all the valid downward jumps for the given pieces
-find_downwards_jumps(Pieces, Player, ListOfMoves) :-
+% find_downwards_jumps(+Stones, +Player, -ListOfMoves)
+% Retrieves a list with all the valid downward jumps for the given stones
+find_downwards_jumps(Stones, Player, ListOfMoves) :-
       findall(
             JumpDown,
             (
-                  member(Col-Row, Pieces),
-                  piece_jumps_downwards(Col, Row, Player, Row, List),
+                  member(Col-Row, Stones),
+                  stone_jumps_downwards(Col, Row, Player, Row, List),
                   member(JumpDown, List)
             ),
             ListOfMoves
       ).
 
-% piece_moves(+Column, +Row, +Player, +TargetColumn, -List )
-% Get recursively a list with the valid normal moves a certain piece has
-piece_moves(Column, Row, p1, TargetColumn, List) :-
+% stone_moves(+Column, +Row, +Player, +TargetColumn, -List )
+% Get recursively a list with the valid normal moves a certain stone has
+stone_moves(Column, Row, p1, TargetColumn, List) :-
       (     
             TargetColumn < 7,
             NextTargetColumn is TargetColumn + 1,
             \+ red(NextTargetColumn,Row), \+ slipper_red(NextTargetColumn,Row),
-            piece_moves(Column, Row, p1, NextTargetColumn, Tail),
+            stone_moves(Column, Row, p1, NextTargetColumn, Tail),
             Move = [Column, Row, NextTargetColumn, Row],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-piece_moves(Column, Row, p2, TargetColumn, List) :-
+stone_moves(Column, Row, p2, TargetColumn, List) :-
       (     
             TargetColumn > 0,
             NextTargetColumn is TargetColumn - 1,
             \+ black(NextTargetColumn,Row), \+ slipper_black(NextTargetColumn,Row),
-            piece_moves(Column, Row, p2, NextTargetColumn, Tail),
+            stone_moves(Column, Row, p2, NextTargetColumn, Tail),
             Move = [Column, Row, NextTargetColumn, Row],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-% piece_jumps_upwards(+Column, +Row, +Player, +TargetRow, -List )
-% Get recursively a list with the valid upward jumps a certain piece has
-piece_jumps_upwards(Column, Row, p1, TargetRow, List) :-
+% stone_jumps_upwards(+Column, +Row, +Player, +TargetRow, -List )
+% Get recursively a list with the valid upward jumps a certain stone has
+stone_jumps_upwards(Column, Row, p1, TargetRow, List) :-
       (     
             TargetRow < 6,
             TargetRow1 is TargetRow + 1, TargetRow2 is TargetRow + 2,
             (black(Column, TargetRow1); slipper_black(Column, TargetRow2)), \+ red(Column, TargetRow2),
-            piece_jumps_upwards(Column, Row, p1, TargetRow2, Tail),
+            stone_jumps_upwards(Column, Row, p1, TargetRow2, Tail),
             Move = [Column, Row, Column, TargetRow2],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-piece_jumps_upwards(Column, Row, p2, TargetRow, List) :-
+stone_jumps_upwards(Column, Row, p2, TargetRow, List) :-
       (     
             TargetRow < 6,
             TargetRow1 is TargetRow + 1, TargetRow2 is TargetRow + 2,
             (red(Column, TargetRow1); slipper_red(Column, TargetRow2)), \+ black(Column, TargetRow2),
-            piece_jumps_upwards(Column, Row, p2, TargetRow2, Tail),
+            stone_jumps_upwards(Column, Row, p2, TargetRow2, Tail),
             Move = [Column, Row, Column, TargetRow2],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-% piece_jumps_upwards(+Column, +Row, +Player, +TargetRow, -List )
-% Get recursively a list with the valid upward jumps a certain piece has
-piece_jumps_downwards(Column, Row, p1, TargetRow, List) :-
+% stone_jumps_upwards(+Column, +Row, +Player, +TargetRow, -List )
+% Get recursively a list with the valid upward jumps a certain stone has
+stone_jumps_downwards(Column, Row, p1, TargetRow, List) :-
       (     
             TargetRow > 0,
             TargetRow1 is TargetRow - 1, TargetRow2 is TargetRow - 2,
             (black(Column, TargetRow1); slipper_black(Column, TargetRow2)), \+ red(Column, TargetRow2),
-            piece_jumps_upwards(Column, Row, p1, TargetRow2, Tail),
+            stone_jumps_upwards(Column, Row, p1, TargetRow2, Tail),
             Move = [Column, Row, Column, TargetRow2],
             append([Move], Tail, List)
       ;     List = []
       ).
 
-piece_jumps_downwards(Column, Row, p2, TargetRow, List) :-
+stone_jumps_downwards(Column, Row, p2, TargetRow, List) :-
       (     
             TargetRow > 1,
             TargetRow1 is TargetRow - 1, TargetRow2 is TargetRow - 2,
             (red(Column, TargetRow1); slipper_red(Column, TargetRow2)), \+ black(Column, TargetRow2),
-            piece_jumps_upwards(Column, Row, p2, TargetRow2, Tail),
+            stone_jumps_upwards(Column, Row, p2, TargetRow2, Tail),
             Move = [Column, Row, Column, TargetRow2],
             append([Move], Tail, List)
       ;     List = []
@@ -551,52 +545,52 @@ simulate_move([Player|Board], [C1,R1,C2,R2], Value) :-
       retract_board(NewBoard, _RetractedBoard, [C2,R2,C1,R1], WasSlipper).
 
 % update_board(+Board, -NewBoard, +Move, -WasSlipper)
-% Updates the board with the given move. Stores *WasSlipper* to use in retraction, if needed
+% Updates the board with the given move. Stores *WasSlipper* to use in retraction for simulating a move
 % Updates for a normal move
 update_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       Y2 =:= Y1 - 2,
       EmptySpace = .,
-      YOpponentPiece is Y1 - 1,
-      get_piece(Board, X, Y1, Piece),
-      get_piece(Board, X, YOpponentPiece, OpponentPiece), 
-      slipper_piece(OpponentPiece, Slipper),  
+      YOpponentStone is Y1 - 1,
+      get_stone(Board, X, Y1, Stone),
+      get_stone(Board, X, YOpponentStone, OpponentStone), 
+      slipper_stone(OpponentStone, Slipper),  
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_matrix(SecondTempBoard, X, YOpponentPiece, Slipper, NewBoard),
+      update_matrix(TempBoard, X, Y2, Stone, SecondTempBoard),
+      update_matrix(SecondTempBoard, X, YOpponentStone, Slipper, NewBoard),
       (
-            update_piece_type(OpponentPiece, X, YOpponentPiece)
+            update_stone_type(OpponentStone, X, YOpponentStone)
       ->    WasSlipper = 1
       ;     WasSlipper = 0
       ),
-      update_piece_position(Piece, [X,Y1,X,Y2]).
+      update_stone_position(Stone, [X,Y1,X,Y2]).
 
 % Updates for a upwards jump 
 update_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       Y2 =:= Y1 + 2,
       EmptySpace = .,
-      YOpponentPiece is Y1 + 1,
-      get_piece(Board, X, Y1, Piece),
-      get_piece(Board, X, YOpponentPiece, OpponentPiece), 
-      slipper_piece(OpponentPiece, Slipper),  
+      YOpponentStone is Y1 + 1,
+      get_stone(Board, X, Y1, Stone),
+      get_stone(Board, X, YOpponentStone, OpponentStone), 
+      slipper_stone(OpponentStone, Slipper),  
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_matrix(SecondTempBoard, X, YOpponentPiece, Slipper, NewBoard),
+      update_matrix(TempBoard, X, Y2, Stone, SecondTempBoard),
+      update_matrix(SecondTempBoard, X, YOpponentStone, Slipper, NewBoard),
       (
-            update_piece_type(OpponentPiece, X, YOpponentPiece)
+            update_stone_type(OpponentStone, X, YOpponentStone)
       ->    WasSlipper = 1
       ;     WasSlipper = 0
       ),
-      update_piece_position(Piece, [X,Y1,X,Y2]).
+      update_stone_position(Stone, [X,Y1,X,Y2]).
 
 % Updates for a downwards jump
 update_board(Board, NewBoard, [X1,Y,X2,Y], WasSlipper) :-
       X1 =\= X2,
       WasSlipper = 0,
       EmptySpace = .,
-      get_piece(Board, X1, Y, Piece),
+      get_stone(Board, X1, Y, Stone),
       update_matrix(Board, X1, Y, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X2, Y, Piece, NewBoard),
-      update_piece_position(Piece, [X1,Y,X2,Y]).
+      update_matrix(TempBoard, X2, Y, Stone, NewBoard),
+      update_stone_position(Stone, [X1,Y,X2,Y]).
 
 % retract_board(+Board, -NewBoard, +Move, +WasSlipper)
 % Retracts the board from a given move
@@ -604,36 +598,36 @@ update_board(Board, NewBoard, [X1,Y,X2,Y], WasSlipper) :-
 retract_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       Y2 =:= Y1 - 2, !,
       EmptySpace = .,
-      YOpponentPiece is Y1 - 1,
-      get_piece(Board, X, Y1, Piece),
-      get_piece(Board, X, YOpponentPiece, OpponentPiece),
+      YOpponentStone is Y1 - 1,
+      get_stone(Board, X, Y1, Stone),
+      get_stone(Board, X, YOpponentStone, OpponentStone),
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_piece_position(Piece, [X,Y1,X,Y2]),  
+      update_matrix(TempBoard, X, Y2, Stone, SecondTempBoard),
+      update_stone_position(Stone, [X,Y1,X,Y2]),  
       (
             WasSlipper =:= 1
       ->    NewBoard = SecondTempBoard
-      ;     jumper_piece(OpponentPiece, Jumper), 
-            retract_piece_type(OpponentPiece, X, YOpponentPiece),
-            update_matrix(SecondTempBoard, X, YOpponentPiece, Jumper, NewBoard)
+      ;     jumper_stone(OpponentStone, Jumper), 
+            retract_stone_type(OpponentStone, X, YOpponentStone),
+            update_matrix(SecondTempBoard, X, YOpponentStone, Jumper, NewBoard)
       ).
 
 % Retracts from a upwards jump 
 retract_board(Board, NewBoard, [X,Y1,X,Y2], WasSlipper) :-
       Y2 =:= Y1 + 2, !,
       EmptySpace = .,
-      YOpponentPiece is Y1 + 1,
-      get_piece(Board, X, Y1, Piece),
-      get_piece(Board, X, YOpponentPiece, OpponentPiece),
+      YOpponentStone is Y1 + 1,
+      get_stone(Board, X, Y1, Stone),
+      get_stone(Board, X, YOpponentStone, OpponentStone),
       update_matrix(Board, X, Y1, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X, Y2, Piece, SecondTempBoard),
-      update_piece_position(Piece, [X,Y1,X,Y2]),  
+      update_matrix(TempBoard, X, Y2, Stone, SecondTempBoard),
+      update_stone_position(Stone, [X,Y1,X,Y2]),  
       (
             WasSlipper =:= 1
       ->    NewBoard = SecondTempBoard
-      ;     jumper_piece(OpponentPiece, Jumper), 
-            retract_piece_type(OpponentPiece, X, YOpponentPiece),
-            update_matrix(SecondTempBoard, X, YOpponentPiece, Jumper, NewBoard)
+      ;     jumper_stone(OpponentStone, Jumper), 
+            retract_stone_type(OpponentStone, X, YOpponentStone),
+            update_matrix(SecondTempBoard, X, YOpponentStone, Jumper, NewBoard)
       ).
 
 % Retracts from a normal move
@@ -641,10 +635,10 @@ retract_board(Board, NewBoard, [X1,Y,X2,Y], WasSlipper) :-
       X1 =\= X2, !,
       WasSlipper = 0,
       EmptySpace = .,
-      get_piece(Board, X1, Y, Piece),
+      get_stone(Board, X1, Y, Stone),
       update_matrix(Board, X1, Y, EmptySpace, TempBoard),
-      update_matrix(TempBoard, X2, Y, Piece, NewBoard),
-      update_piece_position(Piece, [X1,Y,X2,Y]).
+      update_matrix(TempBoard, X2, Y, Stone, NewBoard),
+      update_stone_position(Stone, [X1,Y,X2,Y]).
 
 % value(+GameState, -Value)
 % Get the value of the current state of the game
@@ -658,9 +652,9 @@ value([Player|Board], Value) :-
       Val is V1 - V2,
       Value is Val / 8.
 
-% off_the_board_pieces(+Board, -NewBoard)
-% Removes pieces from the board that don't have any valid move left
-off_the_board_pieces(Board, NewBoard) :-
+% off_the_board_stones(+Board, -NewBoard)
+% Removes stones from the board that don't have any valid move left
+off_the_board_stones(Board, NewBoard) :-
       valid_moves([p1|Board], Player1Moves),
       valid_moves([p2|Board], Player2Moves),
       append(Player1Moves, Player2Moves, ListOfMoves),
@@ -674,16 +668,16 @@ off_the_board_pieces(Board, NewBoard) :-
       move_off_the_board(B3, B4, b, L3, Lenght3),
       move_off_the_board(B4, NewBoard, s_b, L4, Lenght4).
       
-% move_off_the_board(+Board, -NewBoard, +Piece, +ListCoordinates, +Lenght)
-% Deletes as many piece types from the database and updates the state of the game
+% move_off_the_board(+Board, -NewBoard, +Stone, +ListCoordinates, +Lenght)
+% Deletes as many stone types from the database and updates the state of the game
 move_off_the_board(Board, NewBoard,_, [], 0):-
       NewBoard = Board.
 
-move_off_the_board(Board, NewBoard, Piece, [[X,Y]|T], Lenght) :-
+move_off_the_board(Board, NewBoard, Stone, [[X,Y]|T], Lenght) :-
       Lenght1 is Lenght - 1,
-      delete_piece_from_board(Piece, X, Y),
+      delete_stone_from_board(Stone, X, Y),
       update_matrix(TempBoard, X, Y, ., NewBoard),
-      move_off_the_board(Board, TempBoard, Piece, T, Lenght1).
+      move_off_the_board(Board, TempBoard, Stone, T, Lenght1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -786,85 +780,85 @@ append(List1, List2, List3, NewList) :-
       append(List1, List2, AuxiliarList),
       append(AuxiliarList, List3, NewList).
 
-% get_piece(+Board, +C, +R, -Piece)
-% Gets a piece from the board
-get_piece(Board, C, R, Piece):-
+% get_stone(+Board, +C, +R, -Stone)
+% Gets a stone from the board
+get_stone(Board, C, R, Stone):-
       nth0(R, Board, Row),
-      nth0(C, Row, Piece).
+      nth0(C, Row, Stone).
 
-% update_matrix(+Board, +Column, +Row, +Piece, -NewBoard)
-% Updates the matrix of the board on a given position with a new piece
-update_matrix(Board, Column, Row, Piece, NewBoard) :-
+% update_matrix(+Board, +Column, +Row, +Stone, -NewBoard)
+% Updates the matrix of the board on a given position with a new stone
+update_matrix(Board, Column, Row, Stone, NewBoard) :-
       nth0(Row,Board,CRow,TBoard),
       nth0(Column,CRow,_,TRow),
-      nth0(Column,NewRow,Piece,TRow),
+      nth0(Column,NewRow,Stone,TRow),
       nth0(Row,NewBoard,NewRow,TBoard).
 
-% update_piece_position(+Piece, +Move)
-% Updates a piece from the database with the new position from the move
-update_piece_position(r, [X1,Y1,X2,Y2]) :-
+% update_stone_position(+Stone, +Move)
+% Updates a stone from the database with the new position from the move
+update_stone_position(r, [X1,Y1,X2,Y2]) :-
       retract(red(X1,Y1)),
       assertz(red(X2,Y2)).
   
-update_piece_position(s_r, [X1,Y1,X2,Y2]) :-
+update_stone_position(s_r, [X1,Y1,X2,Y2]) :-
       retract(slipper_red(X1,Y1)),
       assertz(slipper_red(X2,Y2)).
   
-update_piece_position(b, [X1,Y1,X2,Y2]) :-
+update_stone_position(b, [X1,Y1,X2,Y2]) :-
       retract(black(X1,Y1)),
       assertz(black(X2,Y2)).
   
-update_piece_position(s_b, [X1,Y1,X2,Y2]) :-
+update_stone_position(s_b, [X1,Y1,X2,Y2]) :-
       retract(slipper_black(X1,Y1)),
       assertz(slipper_black(X2,Y2)).
 
-% update_piece_type(+Piece, +X, +Y)
+% update_stone_type(+Stone, +X, +Y)
 % Downgrades a Jumper to a Slipper from the database
-update_piece_type(r, X, Y) :-
+update_stone_type(r, X, Y) :-
       retract(red(X,Y)),
       assertz(slipper_red(X,Y)).
   
-update_piece_type(b, X, Y) :-
+update_stone_type(b, X, Y) :-
       retract(black(X,Y)),
       assertz(slipper_black(X,Y)).
 
-% update_piece_type(+Piece, +X, +Y)
+% update_stone_type(+Stone, +X, +Y)
 % Upgrades a Slipper to a Jumper from the database
 % Only used when simulating the moves
-retract_piece_type(s_r, X, Y) :-
+retract_stone_type(s_r, X, Y) :-
       retract(slipper_red(X,Y)),
       assertz(red(X,Y)).
   
-retract_piece_type(s_b, X, Y) :-
+retract_stone_type(s_b, X, Y) :-
       retract(slipper_black(X,Y)),
       assertz(black(X,Y)).
 
-% delete_piece_from_board(+Piece, +X, +Y)
-% Deletes the piece from the database
-delete_piece_from_board(r, X, Y) :-
+% delete_stone_from_board(+Stone, +X, +Y)
+% Deletes the stone from the database
+delete_stone_from_board(r, X, Y) :-
       retract(red(X,Y)).
   
-delete_piece_from_board(s_r, X, Y) :-
+delete_stone_from_board(s_r, X, Y) :-
       retract(slipper_red(X,Y)).
   
-delete_piece_from_board(b, X, Y) :-
+delete_stone_from_board(b, X, Y) :-
       retract(black(X,Y)).
   
-delete_piece_from_board(s_b, X, Y) :-
+delete_stone_from_board(s_b, X, Y) :-
       retract(slipper_black(X,Y)).
 
-% jumper_piece(+Slipper, -Jumper)
-% Get the jumper piece for a given slipper
-jumper_piece(s_r, Jumper) :-
+% jumper_stone(+Slipper, -Jumper)
+% Get the jumper stone for a given slipper
+jumper_stone(s_r, Jumper) :-
       Jumper = r.     
-jumper_piece(s_b, Jumper) :-
+jumper_stone(s_b, Jumper) :-
       Jumper = b.
 
-% slipper_piece(+Jumper, -Slipper)
-% Get the slipper piece for a given jumper
-slipper_piece(r, Slipper) :-
+% slipper_stone(+Jumper, -Slipper)
+% Get the slipper stone for a given jumper
+slipper_stone(r, Slipper) :-
       Slipper = s_r.     
-slipper_piece(b, Slipper) :-
+slipper_stone(b, Slipper) :-
       Slipper = s_b.
 
 
@@ -892,17 +886,18 @@ write_moves([[X1,Y1,X2,Y2]|ListOfMoves]) :-
       write([C1,R1,C2,R2]),
       write_moves(ListOfMoves).
 
-% 
-
+% ask_to_continue(+ListOfMoves)
+% Asks the user if he wants to see the available moves for the computers before continuing
 ask_to_continue(ListOfMoves) :-
       repeat,
-      write('1.   Continue'),
-      write('2.   Show list of valid moves'),
+      nl,write('Select one of the following options:'),nl,
+      write('1.   Continue.'), nl,
+      write('2.   Show list of valid moves.'), nl,
       read(Input),
       (     Input =:= 1
       ->    true
       ;     (     Input =:= 2
-            ->    write('Moves: '), write_moves(ListOfMoves)
+            ->    write('Moves: '), write_moves(ListOfMoves), fail
             ;     write('That option does not exist, try again.\n'), fail
             )
 
