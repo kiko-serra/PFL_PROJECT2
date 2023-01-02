@@ -1,5 +1,5 @@
 # SKI JUMPS
-Group G02_09:
+Group SkiJumps_5:
 
 | Name                        | UP                                        | Contribuition |
 | ------------                | ------------                              |------------   |

@@ -1,6 +1,3 @@
-%%%%%%% TODO, mudar a forma como escreve o move para uma forma legível
-%%%%%%% TODO, simulate_move ainda morre no jump!!!
-%%%%%%% TODO, encontrar bug no valid moves
 
 %     MAIN MENU         % 
 
@@ -24,7 +21,7 @@ clear_data :-
 
 % print_main_menu/0
 % Prints the Main Menu art style and options for the player to choose from
-print_main_menu :- % TODO Edit Art Style later on to be readable on SICStus 4.7.1
+print_main_menu :-
       nl,nl,
       write('======================================================================================================================================='),nl,nl,
       write('    ________       ___  __        ___                         ___      ___  ___      _____ ______       ________    ________'),nl,      
@@ -172,7 +169,7 @@ initial_state(Size, GameState) :-
       assertz(black(7,3)),
       assertz(black(7,5)),
       assertz(black(7,7)),
-      assertz(slipper_red(9,9)), % TODO see if it can be changed
+      assertz(slipper_red(9,9)),
       assertz(slipper_black(9,9)),
       retract(slipper_red(9,9)),
       retract(slipper_black(9,9)).
