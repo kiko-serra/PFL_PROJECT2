@@ -156,17 +156,27 @@ Afterwards, it removes (takes off the board) the stones that don't have any vali
 ### **Game Over**
 
 The `gameOver(+GameState, -Winner)` predicate takes two arguments: the current game state (represented as a list) and the winner of the game (represented as a variable).
-It calls the `get_all_player_stones` predicate to get the number of stones belonging to the current player and the opponent player. It then uses a series of conditional statements to determine the winner of the game based on the number of stones each player has. If the current player has no stones and the opponent has at least one stone, the winner is declared to be player 1 (p1).
-If the opponent has no stones and the current player has at least one stone, the winner is declared to be player 2 (p2). If none of these conditions are met, the function fails.
+It calls the `get_all_player_stones` predicate to get the number of stones belonging to the current player and the opponent player. This number is calculated by the adding the lenght of the two resulting list of stones (jumpers and slippers) that each player has. 
+Then uses a series of conditional statements to determine the winner of the game based on the number of stones each player has. 
+- If the current player has no stones and the opponent has at least one stone, the winner is declared to be player 1 (p1).
+- If the opponent has no stones and the current player has at least one stone, the winner is declared to be player 2 (p2).
+- If none of these conditions are met, the function fails.
 
-### **List of valid moves:**
+### **List of valid moves**
 
-The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state (represented as a list) and a list of valid moves. The function calls the `valid_move_forward` predicate to get a list of horizontal moves that can be made from the current game state.
-The `valid_move_forward` predicate, in turn, calls the `findall` and `find_moves` predicates to find all the stones of a certain color and determine the possible moves that can be made with those stones. The `valid_moves` predicate then returns this list of moves as its output.
+The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state (represented as a list) and a list of valid moves (represented as a variable). The function is defined twice, once for each player (p1 and p2).
+
+For player p1, the function begins by calling the `findall` predicate to find all the red stones on the board (represented as a list of column-row pairs). It then calls the `find_moves` predicate to determine the possible moves (up, down and sideways) that can be made with the jumpers, and it assigns the resulting list of moves to the `List1` variable. 
+Next, it calls `findall` again to find all the slipper stones belonging to player p1 and calls the `find_normal_move` predicate to determine the possible moves (sideways) that can be made with the slippers. It assigns the resulting list of moves to the `List2` variable. 
+The function then uses the `append` predicate to concatenate these two lists of moves into a single list, which is stored in the `List3` variable. 
+Finally, it calls the `remove_duplicates` predicate to remove any duplicate moves from this list, and it assigns the resulting list to the `ListOfMoves` variable, which is returned as the output of the predicate.
+
+For player p2, the function follows a similar process, but it uses the `findall` predicate to find all the black stones (jumpers and slippers) belonging to player p2, and it determines the possible moves that can be made with these stones.
+The resulting list of moves is then concatenated and de-duplicated in the same way as for player p1.
 
 ### **Game state evaluation**
 
-The `value(+GameState, +Player, -Value)` predicate takes two arguments: the current game state (represented as a list) and a value (represented as a variable).
+The `value(+GameState, -Value)` predicate takes two arguments: the current game state (represented as a list) and a value (represented as a variable).
 The function calls the `valid_moves` predicate to get the number of valid moves that can be made by the current player and the opponent player. It then calculates the difference between these two values and divides the result by 8.
 This resulting value is then returned as the output of the `value` predicate.
 
@@ -175,8 +185,19 @@ This resulting value is then returned as the output of the `value` predicate.
 The `choose_move(+GameState, +Level, -Move)` predicate takes three arguments, the current game state (represented as a list) that also contains the next player to make a move, the level of difficulty of that player and the Move that it will make (this is represented as a list just such as `[X1,Y1,X2,Y2]`, being `*1` the stone origin and `*2` the stone destination cell).
 The level of difficulty can take one of the following values:
 
-- **1** if it is an easy difficulty computer. Chooses randomly a move from the list of valid moves using the library random to choose an index of that list (with the predicates `random_index` and `nth0`);
+- **1** if it is an easy difficulty computer. Chooses randomly a move from the list of valid moves using the library `random` to choose an index of that list (with the predicates `random_index` and `nth0`);
 - **2** if it is an hard difficulty computer. Uses the predicate `greedy_evaluation` that goes recursively through every move in the list of moves and retrieve the one that has the biggest value for the computer, by simmulating all moves possible.
+
+`greedy_evaluation(+GameState, +ListOfMoves, -BestMove, -BestValue)` predicate takes four arguments: the current game state (represented as a list), a list of moves, the best move (represented as a variable), and the best value (represented as a variable). The function is defined twice, once for the case where the list of moves has a single element and once for the case where it has more than one element.
+
+For the case where the list of moves has a single move, the function calls the `simulate_move` predicate to determine the value of making this move from the current game state. It then assigns this value to the `BestValue` variable and the move to the `BestMove` variable, which are returned as the output of the predicate.
+
+For the case where the list of moves has more than one move, the function calls the `simulate_move` predicate to determine the value of making the first move in the list. It then calls itself recursively (using the `greedy_evaluation` predicate) to determine the best move and value from the remaining moves in the list.
+Finally, it compares the value of the first move to the value of the best move from the remaining moves.
+- If the value of the first move is greater, it assigns this move and value to the `BestMove` and `BestValue` variables.
+- If the value of the first move is not greater, it assigns the best move and value from the remaining moves to these variables.
+
+This process continues until all the moves in the list have been evaluated, and the final result is returned as the output of the predicate.
 
 ### **Human move**
 
