@@ -1,5 +1,3 @@
-%%%%%%% TODO, pedir ao user se quer ver os movimentos válidos (pedir input 'help'.)
-%%%%%%% TODO, adicionar um menu de instruções
 %%%%%%% TODO, mudar a forma como escreve o move para uma forma legível
 %%%%%%% TODO, simulate_move ainda morre no jump!!!
 %%%%%%% TODO, encontrar bug no valid moves
@@ -91,7 +89,7 @@ manage_option(0) :-
 % Output an error message upon unwanted input and retry
 manage_option(_Other) :-
       write('\nERROR: that option does not exist.\n\n'),
-      askOption,
+      write('> Insert your option\n --> '),
       read(Input),
       manage_option(Input).
 
