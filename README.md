@@ -164,9 +164,9 @@ Then uses a series of conditional statements to determine the winner of the game
 
 ### **List of valid moves**
 
-The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state (represented as a list) and a list of valid moves (represented as a variable). The function is defined twice, once for each player (p1 and p2).
+The `valid_moves(+GameState, -ListOfMoves)` predicate takes two arguments: the current game state and a list of valid moves. The function is defined twice, once for each player (p1 and p2).
 
-For player p1, the function begins by calling the `findall` predicate to find all the red stones on the board (represented as a list of column-row pairs). It then calls the `find_moves` predicate to determine the possible moves (up, down and sideways) that can be made with the jumpers, and it assigns the resulting list of moves to the `List1` variable. 
+For player p1, the function begins by calling the `findall` predicate to find all the red stones on the board (represented as a list of column-row pairs). It then calls the `find_moves` predicate to determine the possible moves (jump up, jump down and move sideways) that can be made with the jumpers, and it assigns the resulting list of moves to the `List1` variable. 
 Next, it calls `findall` again to find all the slipper stones belonging to player p1 and calls the `find_normal_move` predicate to determine the possible moves (sideways) that can be made with the slippers. It assigns the resulting list of moves to the `List2` variable. 
 The function then uses the `append` predicate to concatenate these two lists of moves into a single list, which is stored in the `List3` variable. 
 Finally, it calls the `remove_duplicates` predicate to remove any duplicate moves from this list, and it assigns the resulting list to the `ListOfMoves` variable, which is returned as the output of the predicate.

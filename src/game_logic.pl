@@ -27,14 +27,14 @@ clear_data :-
 print_main_menu :- % TODO Edit Art Style later on to be readable on SICStus 4.7.1
       nl,nl,
       write('======================================================================================================================================='),nl,nl,
-      write('    ________       ___  __        ___                        ___      ___  ___      _____ ______       ________    ________'),nl,      
-      write('   |\\   ____\\     |\\  \\|\\  \\     |\\  \\                      |\\  \\    |\\  \\|\\  \\    |\\   _ \\  _   \\    |\\   __  \\  |\\   ____\\     '),nl,
-      write('   \\ \\  \\___|_    \\ \\  \\/  /|_   \\ \\  \\    ____________     \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\\\__\\ \\  \\   \\ \\  \\|\\  \\ \\ \\  \\___|_    '),nl,
-      write('    \\ \\_____  \\    \\ \\   ___  \\   \\ \\  \\  |\\____________\\ __ \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\|__| \\  \\   \\ \\   ____\\ \\ \\_____  \\   '),nl,
-      write('     \\|____|\\  \\    \\ \\  \\\\ \\  \\   \\ \\  \\ \\|____________||\\  \\\\_\\  \\   \\ \\  \\\\\\  \\   \\ \\  \\    \\ \\  \\   \\ \\  \\___|  \\|____|\\  \\  '),nl,
-      write('       ____\\_\\  \\    \\ \\__\\\\ \\__\\   \\ \\__\\               \\ \\________\\   \\ \\_______\\   \\ \\__\\    \\ \\__\\   \\ \\__\\       ____\\_\\  \\ '),nl,
-      write('      |\\_________\\    \\|__| \\|__|    \\|__|                \\|________|    \\|_______|    \\|__|     \\|__|    \\|__|      |\\_________\\ '),nl,
-      write('      \\|_________|                                                                                                   \\|_________|' ),nl,nl,
+      write('    ________       ___  __        ___                         ___      ___  ___      _____ ______       ________    ________'),nl,      
+      write('   |\\   ____\\     |\\  \\|\\  \\     |\\  \\                       |\\  \\    |\\  \\|\\  \\    |\\   _ \\  _   \\    |\\   __  \\  |\\   ____\\     '),nl,
+      write('   \\ \\  \\___|_    \\ \\  \\/  /|_   \\ \\  \\    ____________      \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\\\__\\ \\  \\   \\ \\  \\|\\  \\ \\ \\  \\___|_    '),nl,
+      write('    \\ \\_____  \\    \\ \\   ___  \\   \\ \\  \\  |\\____________\\  __ \\ \\  \\   \\ \\  \\\\\\  \\   \\ \\  \\\\|__| \\  \\   \\ \\   ____\\ \\ \\_____  \\   '),nl,
+      write('     \\|____|\\  \\    \\ \\  \\\\ \\  \\   \\ \\  \\ \\|____________| |\\  \\\\_\\  \\   \\ \\  \\\\\\  \\   \\ \\  \\    \\ \\  \\   \\ \\  \\___|  \\|____|\\  \\  '),nl,
+      write('       ____\\_\\  \\    \\ \\__\\\\ \\__\\   \\ \\__\\                \\ \\________\\   \\ \\_______\\   \\ \\__\\    \\ \\__\\   \\ \\__\\       ____\\_\\  \\ '),nl,
+      write('      |\\_________\\    \\|__| \\|__|    \\|__|                 \\|________|    \\|_______|    \\|__|     \\|__|    \\|__|      |\\_________\\ '),nl,
+      write('      \\|_________|                                                                                                    \\|_________|' ),nl,nl,
       write('         1. Player vs Player'),nl,nl,
       write('         2. Player vs Computer'),nl,nl,
       write('         3. Computer vs Computer'),nl,nl,
@@ -67,6 +67,7 @@ manage_option(3) :-
       play_game(Level),
       main_menu.
 
+% Instructions for the game
 manage_option(4) :-
       write('> Ski jumps is a board game played by 2 players.'),nl,
       write('> The player controlling the Red (Black) stones is the player 1 (2), and can only move to the right (left).'),nl,
@@ -347,16 +348,16 @@ level_current_player([p2|_Board], 21, LevelOfDifficulty) :-
 choose_move([Player|Board], 0, Move):-
       valid_moves([Player|Board], ListOfMoves),
       repeat,
-      write(' > Choose the move. ---> '),
+      write(' > Choose the move ---> '),
       get_move(Move, ListOfMoves),
       (     member(Move, ListOfMoves)
-      ->    write('Move: '), write_moves([Move])
+      ->    true
       ;     write('Invalid move. Please try again.'), nl, fail
       ).
 
 % If the difficulty is 1, the player is a computer on a easy difficulty and selects a random move from the valid moves available
 choose_move([Player|Board], 1, Move):-
-      write(' > Choose the move. ---> '),
+      write(' > Choosing computer move...'),
       valid_moves([Player|Board], ListOfMoves),
       random_index(Index, ListOfMoves),
       nth0(Index, ListOfMoves, Move),
@@ -365,7 +366,7 @@ choose_move([Player|Board], 1, Move):-
 % If the difficulty is 2, the player is a computer on a hard difficulty and selects the move that will give the best evaluation after playing it
 % It follows a greedy evaluation 
 choose_move([Player|Board], 2, Move):-
-      write(' > Choose the move. ---> '),
+      write(' > Choosing computer move...'),
       valid_moves([Player|Board], ListOfMoves),
       greedy_evaluation([Player|Board], ListOfMoves, Move, _Value),
       ask_to_continue(ListOfMoves).
@@ -373,10 +374,10 @@ choose_move([Player|Board], 2, Move):-
 % move(+GameState, +Move, -NewGameState)
 % Makes the move and updates the state of the game, removing any stone that may not have any valid moves left
 move([Player|Board], Move, [NewPlayer|NewBoard]) :-
+      write('Move: '), write_moves([Move]),
       update_board(Board, SecondBoard, Move, _),
       off_the_board_stones(SecondBoard, NewBoard),
       other_player(Player, NewPlayer).
-
 
 % valid_moves(+GameState, -ListOfMoves)
 % Get the available stones for the player and retrieve a list with all the valid moves
@@ -889,7 +890,7 @@ ask_to_continue(ListOfMoves) :-
       repeat,
       nl,write('Select one of the following options:'),nl,
       write('1.   Continue.'), nl,
-      write('2.   Show list of valid moves.'), nl,
+      write('2.   Show list of valid moves for the computer.'), nl,
       read(Input),
       (     Input =:= 1
       ->    true
